@@ -1,0 +1,360 @@
+---
+version: '3'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.2.2
+    hostname: zookeeper
+    container_name: zookeeper
+    restart: always
+    ports:
+      - 2181:2181
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka-01:
+    image: confluentinc/cp-server:7.2.2
+    hostname: kafka-01
+    container_name: kafka-01
+    restart: always
+    depends_on:
+      - zookeeper
+    ports:
+      - 9091:9091
+      - 19091:19091
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-01:19091,PLAINTEXT://kafka-01:9091
+
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_CONFLUENT_SECURITY_EVENT_LOGGER_EXPORTER_KAFKA_TOPIC_REPLICAS: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 2
+
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka-01:19091,kafka-02:19092,kafka-03:19093
+      KAFKA_CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181
+
+      KAFKA_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 2
+      KAFKA_CONFLUENT_METRICS_ENABLE: 'true'
+      KAFKA_CONFLUENT_SUPPORT_CUSTOMER_ID: anonymous
+
+      KAFKA_LOG4J_LOGGERS: kafka.authorizer.logger=INFO
+      KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
+
+      # Schema Registry
+      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+
+      # MDS
+      KAFKA_CONFLUENT_METADATA_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_CONFLUENT_METADATA_SERVER_LISTENERS: http://0.0.0.0:8091
+      KAFKA_CONFLUENT_METADATA_SERVER_ADVERTISED_LISTENERS: http://kafka-01:8091
+
+      # EmbeddedKafkaRest: Kafka Client Configuration
+      KAFKA_KAFKA_REST_BOOTSTRAP_SERVERS: PLAINTEXT://kafka-01:19091,PLAINTEXT://kafka-02:19092,PLAINTEXT://kafka-03:19093
+
+      # EmbeddedKafkaRest: MDS Client configuration
+      KAFKA_KAFKA_REST_CONFLUENT_METADATA_BOOTSTRAP_SERVER_URLS: http://kafka-01:8091,http://kafka-02:8092,http://kafka-03:8093
+
+      KAFKA_KAFKA_REST_ADVERTISED_LISTENERS: http://kafka-01:8091,http://kafka-02:8092,http://kafka-03:8093
+
+      # Self Balancing
+      KAFKA_CONFLUENT_BALANCER_ENABLE: 'true'
+      KAFKA_CONFLUENT_BALANCER_HEAL_UNEVEN_LOAD_TRIGGER: ANY_UNEVEN_LOAD
+      KAFKA_CONFLUENT_BALANCER_HEAL_BROKER_FAILURE_THRESHOLD_MS: 5000
+
+  kafka-02:
+    image: confluentinc/cp-server:7.2.2
+    hostname: kafka-02
+    container_name: kafka-02
+    restart: always
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+      - 19092:19092
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-02:19092,PLAINTEXT://kafka-02:9092
+
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_CONFLUENT_SECURITY_EVENT_LOGGER_EXPORTER_KAFKA_TOPIC_REPLICAS: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 2
+
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka-01:19091, kafka-02:19092,kafka-03:19093
+      KAFKA_CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 2
+      KAFKA_CONFLUENT_METRICS_ENABLE: 'true'
+      KAFKA_CONFLUENT_SUPPORT_CUSTOMER_ID: anonymous
+
+      KAFKA_LOG4J_LOGGERS: kafka.authorizer.logger=INFO
+      KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
+
+      # Schema Registry
+      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+
+      # MDS
+      KAFKA_CONFLUENT_METADATA_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_CONFLUENT_METADATA_SERVER_LISTENERS: http://0.0.0.0:8092
+      KAFKA_CONFLUENT_METADATA_SERVER_ADVERTISED_LISTENERS: http://kafka-02:8092
+
+      # EmbeddedKafkaRest: Kafka Client Configuration
+      KAFKA_KAFKA_REST_BOOTSTRAP_SERVERS: PLAINTEXT://kafka-01:19091,PLAINTEXT://kafka-02:19092,PLAINTEXT://kafka-03:19093
+      
+      # EmbeddedKafkaRest: MDS Client configuration
+      KAFKA_KAFKA_REST_CONFLUENT_METADATA_BOOTSTRAP_SERVER_URLS: http://kafka-01:8091,http://kafka-02:8092,http://kafka-03:8093
+      KAFKA_KAFKA_REST_ADVERTISED_LISTENERS: http://kafka-01:8091,http://kafka-02:8092,http://kafka-03:8093
+
+      # Self Balancing
+      KAFKA_CONFLUENT_BALANCER_ENABLE: 'true'
+      KAFKA_CONFLUENT_BALANCER_HEAL_UNEVEN_LOAD_TRIGGER: ANY_UNEVEN_LOAD
+      KAFKA_CONFLUENT_BALANCER_HEAL_BROKER_FAILURE_THRESHOLD_MS: 5000
+
+      # LDAP Integration
+      # RBAC Enable
+
+  kafka-03:
+    image: confluentinc/cp-server:7.2.2
+    hostname: kafka-03
+    container_name: kafka-03
+    restart: always
+    depends_on:
+      - zookeeper
+    ports:
+      - 9093:9093
+      - 19093:19093
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-03:19093,PLAINTEXT://kafka-03:9093
+
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_CONFLUENT_SECURITY_EVENT_LOGGER_EXPORTER_KAFKA_TOPIC_REPLICAS: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 2
+
+
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka-01:19091,kafka-02:19092,kafka-03:19093
+      KAFKA_CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181
+
+      KAFKA_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 2
+      KAFKA_CONFLUENT_METRICS_ENABLE: 'true'
+      KAFKA_CONFLUENT_SUPPORT_CUSTOMER_ID: anonymous
+
+      KAFKA_LOG4J_LOGGERS: kafka.authorizer.logger=INFO
+      KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
+
+      # Schema Registry
+      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+
+      # MDS
+      KAFKA_CONFLUENT_METADATA_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_CONFLUENT_METADATA_SERVER_LISTENERS: http://0.0.0.0:8093
+      KAFKA_CONFLUENT_METADATA_SERVER_ADVERTISED_LISTENERS: http://kafka-03:8093
+
+      # EmbeddedKafkaRest: Kafka Client Configuration
+      KAFKA_KAFKA_REST_BOOTSTRAP_SERVERS: PLAINTEXT://kafka-01:19091,PLAINTEXT://kafka-02:19092,PLAINTEXT://kafka-03:19093
+
+      # EmbeddedKafkaRest: MDS Client configuration
+      KAFKA_KAFKA_REST_CONFLUENT_METADATA_BOOTSTRAP_SERVER_URLS: http://kafka-01:8091,http://kafka-02:8092,http://kafka-03:8093
+
+      KAFKA_KAFKA_REST_ADVERTISED_LISTENERS: http://kafka-01:8091,http://kafka-02:8092,http://kafka-03:8093
+
+      # Self Balancing
+      KAFKA_CONFLUENT_BALANCER_ENABLE: 'true'
+      KAFKA_CONFLUENT_BALANCER_HEAL_UNEVEN_LOAD_TRIGGER: ANY_UNEVEN_LOAD
+      KAFKA_CONFLUENT_BALANCER_HEAL_BROKER_FAILURE_THRESHOLD_MS: 5000
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.2.2
+    hostname: schema-registry
+    container_name: schema-registry
+    restart: always
+    depends_on:
+      - zookeeper
+      - kafka-01
+      - kafka-02
+      - kafka-03
+    ports:
+      - 8081:8081
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka-01:19091,kafka-02:19092,kafka-03:19093
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect:7.2.2
+    hostname: kafka-connect
+    container_name: kafka-connect
+    restart: always
+    depends_on:
+      - kafka-01
+      - kafka-02
+      - kafka-03
+      - schema-registry
+    ports:
+      - 8083:8083
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: kafka-01:19091,kafka-02:19092,kafka-03:19093
+
+      CONNECT_REST_PORT: 8083
+      CONNECT_GROUP_ID: kafka-connect
+      CONNECT_PRODUCER_CLIENT_ID: kafka-connect
+      CONNECT_LISTENERS: http://0.0.0.0:8083
+      CONNECT_PRODUCER_ENABLE_IDEMPOTENCE: 'true'
+
+      CONNECT_CONFIG_STORAGE_TOPIC: connect-configs
+      CONNECT_OFFSET_STORAGE_TOPIC: connect-offsets
+      CONNECT_STATUS_STORAGE_TOPIC: connect-statuses
+      CONNECT_REPLICATION_FACTOR: 2
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 2
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 2
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 2
+
+      CONNECT_KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+
+      CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
+      CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
+      CONNECT_LOG4J_LOGGERS: org.apache.kafka.connect.runtime.rest=ERROR,org.reflections=ERROR
+      CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components
+
+      # Allow overriding configs on the connector level
+      CONNECT_CONNECTOR_CLIENT_CONFIG_OVERRIDE_POLICY: All
+
+      # Interceptor config
+      CONNECT_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+      CONNECT_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+      CLASSPATH: /usr/share/java/monitoring-interceptors/*
+
+      KAFKA_JVM_PERFORMANCE_OPTS: -server -XX:+UseG1GC -XX:GCTimeRatio=1 -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:MaxGCPauseMillis=10000 -XX:InitiatingHeapOccupancyPercent=35 -XX:+ExplicitGCInvokesConcurrent -XX:MaxInlineLevel=15 -Djava.awt.headless=true
+   
+    volumes:
+      - $PWD/data/mysql-connector-java-8.0.27.jar:/usr/share/java/kafka/mysql-connector-java-8.0.27.jar
+      - $PWD/data:/data
+    command:
+      - /bin/bash
+      - -c
+      - |
+        echo "Installing Connector-plugins"
+        confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:latest
+        confluent-hub install --no-prompt debezium/debezium-connector-mysql:1.9.3
+        #
+        echo "Launching kafka Connect worker"
+        /etc/confluent/docker/run &
+        #
+        sleep infinity
+
+  ksqldb-server:
+    image: confluentinc/cp-ksqldb-server:7.2.2
+    hostname: ksqldb-server
+    container_name: ksqldb-server
+    restart: always
+    ports:
+      - 8088:8088
+    depends_on:
+      - kafka-01
+      - kafka-02
+      - kafka-03
+    environment:
+      KSQL_BOOTSTRAP_SERVERS: kafka-01:19091,kafka-02:19092,kafka-03:19093
+      KSQL_LISTENERS: http://0.0.0.0:8088
+      KSQL_KSQL_SERVICE_ID: ksqldb-01
+      KSQL_CUB_KAFKA_TIMEOUT: 300
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      # -v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v
+      # Useful settings for development/laptop use - modify as needed for Prod
+      KSQL_KSQL_COMMIT_INTERVAL_MS: 2000
+      KSQL_KSQL_SINK_PARTITIONS: 2
+      KSQL_KSQL_CACHE_MAX_BYTES_BUFFERING: 0
+      # KSQL_KSQL_STREAMS_AUTO_OFFSET_RESET: earliest
+      # -v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v
+      # Producer Confluent Monitoring Interceptors for Control Center streams monitoring
+      KSQL_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+      KSQL_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:7.2.2
+    hostname: control-center
+    container_name: control-center
+    restart: always
+    depends_on:
+      - zookeeper
+      - kafka-01
+      - kafka-02
+      - kafka-03
+      - schema-registry
+      - kafka-connect
+      - ksqldb-server
+    ports:
+      - 9021:9021
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: kafka-01:19091,kafka-02:19092,kafka-03:19093
+      CONTROL_CENTER_ZOOKEEPER_CONNECT: zookeeper:2181
+      CONTROL_CENTER_CONNECT_KAFKA-CONNECT_CLUSTER: http://kafka-connect:8083
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      # The advertised URL needs to be the URL on which the browser
+      #  can access the KSQL server (e.g. http://localhost:8088/info)
+      CONTROL_CENTER_KSQL_KSQLDB-01_URL: http://ksqldb-server:8088
+      CONTROL_CENTER_KSQL_KSQLDB-01_ADVERTISED_URL: http://ksqldb-server:8088
+      # -v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v
+      # Useful settings for development/laptop use - modify as needed for Prod
+      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_COMMAND_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_REPLICATION: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONTROL_CENTER_STREAMS_NUM_STREAM_THREADS: 1
+      CONTROL_CENTER_STREAMS_CACHE_MAX_BYTES_BUFFERING: 0
+    command:
+      - bash
+      - -c 
+      - |
+        echo "Waiting a minute for Kafka brokers to start and necessary topics to be available"
+        sleep 60  
+        /etc/confluent/docker/run
+
+  kafkacat:
+    image: confluentinc/cp-kafkacat:latest
+    container_name: kafkacat
+    depends_on:
+      - kafka-01
+    entrypoint: sleep infinity
+
+

@@ -1,0 +1,471 @@
+---
+version: '3'
+services:
+  kafka-01:
+    image: confluentinc/cp-server
+    hostname: kafka-01
+    container_name: kafka-01
+    restart: always
+    ports:
+      - 8091:8091
+      - 9091:9091
+      - 19091:19091
+      - 9100:9100
+      - 8070:8070
+    environment:
+      # kraft setting
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:29091
+
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_LISTENERS: INTERNAL://kafka-01:19091,PLAINTEXT://kafka-01:9091,CONTROLLER://kafka-01:29091
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-01:19091,PLAINTEXT://kafka-01:9091
+
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_MESSAGE_MAX_BYTES: 2097164
+      KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE: 'false'
+      #KAFKA_CONFLUENT_CLUSTER_LINK_ENABLE: 'false'
+      #KAFKA_PASSWORD_ENCODER_SECRET: 'encoder-secret'
+   
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_SECURITY_EVENT_LOGGER_EXPORTER_KAFKA_TOPIC_REPLICAS: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      #KAFKA_METRIC_REPORTERS: io.confluent.telemetry.reporter.TelemetryReporter
+      KAFKA_CONFLUNET_TELEMETRY_EXPORTER_\_CONFLUENT_ENABLED: 'false'
+      KAFKA_CONFLUNET_TELEMETRY_EXPORTER_KAFKA_TYPE: Kafka
+      KAFKA_CONFLUNET_TELEMETRY_EXPORTER_LOCAL_TYPE: Kafka
+      KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAFKA_TOPIC_REPLICAS: 1
+      KAFKA_CONFLUNET_TELEMETRY_EXPORTER_KAFKA_TOPIC_NAME: telemetry
+      KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAFKA_TOPIC_MAX_MESSAGE_BYTES: 8388608
+      KAFKA_CONFLUNET_TELEMETRY_EXPORTER_KAFKA_PRODUCER_BOOTSTRAP_SERVERS: localhost:19091
+      KAFKA_CONFLUNET_TELEMETRY_DEBUG_ENABLED: 'true'
+
+      KAFKA_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka-01:19091,kafka-02:19092
+      KAFKA_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      KAFKA_CONFLUENT_METRICS_ENABLE: 'true'
+      KAFKA_CONFLUENT_SUPPORT_CUSTOMER_ID: anonymous
+      KAFKA_CONFLUENT_REPORTERS_TELEMETRY_AUTO_ENABLE: 'true'
+
+      KAFKA_METRICS_SAMPLE_WINDOW_MS: 10000
+      KAFKA_METRICS_NUM_SAMPLES: 2
+
+      KAFKA_LOG4J_LOGGERS: kafka.authorizer.logger=INFO
+      KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
+
+      # Schema Registry
+      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+
+      # MDS
+      KAFKA_CONFLUENT_METADATA_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_METADATA_SERVER_LISTENERS: http://0.0.0.0:8091
+      KAFKA_CONFLUENT_METADATA_SERVER_ADVERTISED_LISTENERS: http://kafka-01:8091
+
+      # EmbeddedKafkaRest: Kafka Client Configuration
+      KAFKA_REST_BOOTSTRAP_SERVERS: PLAINTEXT://kafka-01:19091,PLAINTEXT://kafka-02:19092
+
+      # EmbeddedKafkaRest: MDS Client configuration
+      KAFKA_REST_CONFLUENT_METADATA_BOOTSTRAP_SERVER_URLS: http://kafka-01:8091,http://kafka-02:8092
+
+      KAFKA_REST_ADVERTISED_LISTENERS: http://kafka-01:8091,http://kafka-02:8092
+
+      # Self Balancing
+      KAFKA_CONFLUENT_BALANCER_ENABLE: 'true'
+      KAFKA_CONFLUENT_BALANCER_HEAL_UNEVEN_LOAD_TRIGGER: ANY_UNEVEN_LOAD
+
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+
+      # KAFKA_HEAP_OPTS: "-Xms2g -Xmx2g"
+      EXTRA_ARGS: -javaagent:/etc/confluent/jmx_prometheus_javaagent.jar=8070:/etc/confluent/kafka.yml
+      # KAFKA_HEAP_OPTS: "-Xms8g -Xmx8g"
+      KAFKA_JMX_PORT: 9100
+      KAFKA_JMX_OPTS: -Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false  -Dcom.sun.management.jmxremote.ssl=false      
+      KAFKA_JVM_PERFORMANCE_OPTS: -server -XX:MetaspaceSize=96m -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintFlagsFinal -XX:+UseBiasedLocking -XX:+UseG1GC -XX:G1HeapRegionSize=16 -XX:InitiatingHeapOccupancyPercent=35 -XX:MaxGCPauseMillis=20 -XX:MaxInlineLevel=15 -XX:MaxMetaspaceFreeRatio=80 -XX:MinMetaspaceFreeRatio=50 -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true
+    
+    # volumes:
+    #   - ./update_run.sh:/tmp/update_run.sh
+    # command: "bash -c 'if [ ! -f /tmp/update_run.sh ]; then echo \"ERROR: Did you forget the update_run.sh file that came with this docker-compose.yml file?\" && exit 1 ; else /tmp/update_run.sh && /etc/confluent/docker/run ; fi'"
+    command: 
+      - /bin/bash
+      - -c
+      - |
+        wget -O /etc/confluent/jmx_prometheus_javaagent.jar https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.18.0/jmx_prometheus_javaagent-0.18.0.jar
+        wget -O /etc/confluent/kafka.yml https://raw.githubusercontent.com/confluentinc/jmx-monitoring-stacks/7.2-post/shared-assets/jmx-exporter/kafka_broker_p99only.yml
+        echo "Launching kafka Connect worker"
+        /etc/confluent/docker/run &
+        #
+        sleep infinity
+
+  kafka-02:
+    image: confluentinc/cp-server
+    hostname: kafka-02
+    container_name: kafka-02
+    restart: always
+    ports:
+      - 8092:8092
+      - 9092:9092
+      - 19092:19092
+      - 9101:9101
+      - 8071:8071
+    environment:
+      # kraft setting
+      KAFKA_NODE_ID: 2
+      KAFKA_PROCESS_ROLES: broker
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:29091
+
+      KAFKA_BROKER_ID: 2
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_LISTENERS: INTERNAL://kafka-02:19092,PLAINTEXT://kafka-02:9092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-02:19092,PLAINTEXT://kafka-02:9092
+
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_MESSAGE_MAX_BYTES: 2097164
+      KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE: 'false'    
+      #KAFKA_CONFLUENT_CLUSTER_LINK_ENABLE: 'false'
+      #KAFKA_PASSWORD_ENCODER_SECRET: 'encoder-secret'
+
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_SECURITY_EVENT_LOGGER_EXPORTER_KAFKA_TOPIC_REPLICAS: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      # KAFKA_METRIC_REPORTERS: io.confluent.telemetry.reporter.TelemetryReporter
+
+      KAFKA_CONFLUNET_TELEMETRY_EXPORTER_\_CONFLUENT_ENABLED: 'false'
+      KAFKA_CONFLUNET_TELEMETRY_EXPORTER_\_LOCAL_ENABLED: 'false'
+      KAFKA_CONFLUNET_TELEMETRY_EXPORTER_KAFKA_TYPE: Kafka
+      KAFKA_CONFLUNET_TELEMETRY_EXPORTER_LOCAL_TYPE: Kafka
+      KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAFKA_TOPIC_REPLICAS: 1
+      KAFKA_CONFLUNET_TELEMETRY_EXPORTER_KAFKA_TOPIC_NAME: telemetry
+      KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAFKA_TOPIC_MAX_MESSAGE_BYTES: 8388608
+      KAFKA_CONFLUNET_TELEMETRY_EXPORTER_KAFKA_PRODUCER_BOOTSTRAP_SERVERS: localhost:19091
+      KAFKA_CONFLUNET_TELEMETRY_DEBUG_ENABLED: 'true'
+
+      KAFKA_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka-01:19091,kafka-02:19092
+      KAFKA_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      KAFKA_CONFLUENT_METRICS_ENABLE: 'true'
+      KAFKA_CONFLUENT_SUPPORT_CUSTOMER_ID: anonymous
+      KAFKA_CONFLUENT_REPORTERS_TELEMETRY_AUTO_ENABLE: 'true'
+
+      KAFKA_METRICS_SAMPLE_WINDOW_MS: 10000
+      KAFKA_METRICS_NUM_SAMPLES: 2
+
+      KAFKA_LOG4J_LOGGERS: kafka.authorizer.logger=INFO
+      KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
+
+      # Schema Registry
+      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+
+      # MDS
+      KAFKA_CONFLUENT_METADATA_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_METADATA_SERVER_LISTENERS: http://0.0.0.0:8092
+      KAFKA_CONFLUENT_METADATA_SERVER_ADVERTISED_LISTENERS: http://kafka-02:8092
+
+      # EmbeddedKafkaRest: Kafka Client Configuration
+      KAFKA_REST_BOOTSTRAP_SERVERS: PLAINTEXT://kafka-01:19091,PLAINTEXT://kafka-02:19092
+      
+      # EmbeddedKafkaRest: MDS Client configuration
+      KAFKA_REST_CONFLUENT_METADATA_BOOTSTRAP_SERVER_URLS: http://kafka-01:8091,http://kafka-02:8092
+      KAFKA_REST_ADVERTISED_LISTENERS: http://kafka-01:8091,http://kafka-02:8092
+
+      # Self Balancing
+      KAFKA_CONFLUENT_BALANCER_ENABLE: 'true'
+      KAFKA_CONFLUENT_BALANCER_HEAL_UNEVEN_LOAD_TRIGGER: ANY_UNEVEN_LOAD
+      KAFKA_CONFLUENT_BALANCER_HEAL_BROKER_FAILURE_THRESHOLD_MS: 5000
+
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+
+      # KAFKA_HEAP_OPTS: "-Xms2g -Xmx2g"
+      EXTRA_ARGS: -javaagent:/etc/confluent/jmx_prometheus_javaagent.jar=8071:/etc/confluent/kafka.yml
+      # KAFKA_HEAP_OPTS: "-Xms8g -Xmx8g"
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_OPTS: -Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false  -Dcom.sun.management.jmxremote.ssl=false  
+      KAFKA_JVM_PERFORMANCE_OPTS: -server -XX:MetaspaceSize=96m -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintFlagsFinal -XX:+UseBiasedLocking -XX:+UseG1GC -XX:G1HeapRegionSize=16 -XX:InitiatingHeapOccupancyPercent=35 -XX:MaxGCPauseMillis=20 -XX:MaxInlineLevel=15 -XX:MaxMetaspaceFreeRatio=80 -XX:MinMetaspaceFreeRatio=50 -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true
+    
+    # volumes:
+    #   - ./update_run.sh:/tmp/update_run.sh    
+    # command: "bash -c 'if [ ! -f /tmp/update_run.sh ]; then echo \"ERROR: Did you forget the update_run.sh file that came with this docker-compose.yml file?\" && exit 1 ; else /tmp/update_run.sh && /etc/confluent/docker/run ; fi'"
+    command: 
+      - /bin/bash
+      - -c
+      - |
+        wget -O /etc/confluent/jmx_prometheus_javaagent.jar https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.18.0/jmx_prometheus_javaagent-0.18.0.jar
+        wget -O /etc/confluent/kafka.yml https://raw.githubusercontent.com/confluentinc/jmx-monitoring-stacks/7.2-post/shared-assets/jmx-exporter/kafka_broker_p99only.yml
+        echo "Launching kafka Connect worker"
+        /etc/confluent/docker/run &
+        #
+        sleep infinity
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry
+    hostname: schema-registry
+    container_name: schema-registry
+    restart: always
+    depends_on:
+      - kafka-01
+      - kafka-02
+    ports:
+      - 8081:8081
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka-01:19091,kafka-02:19092
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect
+    hostname: kafka-connect
+    container_name: kafka-connect
+    restart: always
+    depends_on:
+      - kafka-01
+      - kafka-02
+      - schema-registry
+    ports:
+      - 8083:8083
+      - 8077:8077
+      - 7077:7077
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: kafka-01:19091,kafka-02:19092
+      CONNECT_REST_PORT: 8083
+      # CONNECT_REST_HOME: 0.0.0.0
+      CONNECT_GROUP_ID: kafka-connect
+      # CONNECT_PRODUCER_CLIENT_ID: kafka-connect
+      CONNECT_LISTENERS: http://0.0.0.0:8083
+      CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
+
+      CONNECT_CONFIG_STORAGE_TOPIC: connect-configs
+      CONNECT_OFFSET_STORAGE_TOPIC: connect-offsets
+      CONNECT_STATUS_STORAGE_TOPIC: connect-statuses
+      CONNECT_REPLICATION_FACTOR: 1
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+
+      CONNECT_KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+
+      CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
+      CONNECT_LOG4J_LOGGERS: org.apache.kafka.connect.runtime.rest=ERROR,org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
+      CONNECT_LOG4J_APPENDER_STDOUT_LAYOUT_CONVERSIONPATTERN: "[%d] %p %X{connector.context}%m (%c:%L)%n"
+
+      # Allow overriding configs on the connector level
+      CONNECT_CONNECTOR_CLIENT_CONFIG_OVERRIDE_POLICY: All
+
+      CONNECT_TOPIC_CREATION_ENABLE: 'true'
+      CONNECT_RETRY_BACKOFF_MS: 500
+      CONNECT_REQUEST_TIMEOUT_MS: 20000
+      CONNECT_PRODUCER_REQUEST_TIMEOUT_MS: 20000
+      CONNECT_PRODUCER_RETRY_BACKOFF_MS: 500
+      CONNECT_CONSUMER_REQUEST_TIMEOUT_MS: 20000
+      CONNECT_CONSUMER_RETRY_BACKOFF_MS: 500
+      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 5000      
+
+      CONNECT_PRODUCER_ENABLE_IDEMPOTENCE: 'true'
+      CONNECT_PRODUCER_COMPRESSION_TYPE: lz4
+
+      # Interceptor config
+      CLASSPATH: /usr/share/java/monitoring-interceptors/monitoring-interceptors-7.2.2.jar:/usr/share/confluent-hub-components/debezium-debezium-connector-mysql/lib/mysql-connector-java-8.0.28.jar
+      CONNECT_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+      CONNECT_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+      
+      EXTRA_ARGS: -javaagent:/etc/confluent/jmx_prometheus_javaagent.jar=8077:/etc/confluent/kafka_connect.yml
+      JMX_PORT: "7077"
+      KAFKA_JMX_OPTS: "-Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+      KAFKA_JVM_PERFORMANCE_OPTS: -server -XX:MetaspaceSize=96m -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintFlagsFinal -XX:+UseBiasedLocking -XX:+UseG1GC -XX:G1HeapRegionSize=16 -XX:InitiatingHeapOccupancyPercent=35 -XX:MaxGCPauseMillis=20 -XX:MaxInlineLevel=15 -XX:MaxMetaspaceFreeRatio=80 -XX:MinMetaspaceFreeRatio=50 -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true
+
+      CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components,/data/connect-jars
+
+    volumes:
+      - $PWD/data/mysql-connector-java-8.0.27.jar:/usr/share/java/kafka/mysql-connector-java-8.0.27.jar
+      #- $PWD/data:/data
+    command:
+      - /bin/bash
+      - -c
+      - |
+        echo "Installing JMX Exporter"
+        #
+        wget -O /etc/confluent/jmx_prometheus_javaagent.jar https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.18.0/jmx_prometheus_javaagent-0.18.0.jar
+        wget -O /etc/confluent/kafka_connect.yml https://raw.githubusercontent.com/confluentinc/jmx-monitoring-stacks/7.2-post/shared-assets/jmx-exporter/kafka_connect.yml
+        #
+        echo "Installing Connector-plugins"
+        confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:latest
+        confluent-hub install --no-prompt debezium/debezium-connector-mysql:1.9.3
+        #
+        echo "Launching kafka Connect worker"
+        /etc/confluent/docker/run &
+        #
+        sleep infinity
+
+  ksqldb:
+    image: confluentinc/cp-ksqldb-server
+    hostname: ksqldb
+    container_name: ksqldb
+    restart: always
+    ports:
+      - 8088:8088
+    depends_on:
+      - kafka-01
+      - kafka-02
+      - schema-registry
+      - kafka-connect
+    environment:
+      KSQL_BOOTSTRAP_SERVERS: kafka-01:19091,kafka-02:19092
+      KSQL_LISTENERS: http://0.0.0.0:8088
+      
+      KSQL_KSQL_SERVICE_ID: ksqldb-01
+      
+      KSQL_CUB_KAFKA_TIMEOUT: 300
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      KSQL_KSQL_CONNECT_URL: http://kafka-connect:8083
+      # -v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v
+      # Useful settings for development/laptop use - modify as needed for Prod
+      KSQL_KSQL_COMMIT_INTERVAL_MS: 2000
+      KSQL_KSQL_SINK_PARTITIONS: 1
+      KSQL_KSQL_CACHE_MAX_BYTES_BUFFERING: 0
+      KSQL_KSQL_STREAMS_CACHE_MAX_BYTES_BUFFERING: 0
+      
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: 'true'
+      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: 'true'
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_REPLICATION_FACTOR: 1
+
+      KSQL_KSQL_STREAMS_NUM_STANDBY_REPLICAS: 1
+      KSQL_KSQL_STREAMS_REPLICATION_FACTOR: 1
+      KSQL_KSQL_QUERY_PULL_ENABLE_STANDBY_READS: 'true'
+      KSQL_KSQL_HEATBEAT_ENABLE: 'true'
+      #KSQL_KSQL_LAG_REPORTING_ENABLE: 'true'
+      KSQL_KSQL_QUERY_PULL_MAX_ALLOWED_OFFSET_LAG: 10000
+      #KSQL_KSQL_STREAMS_PROCESSING_GUARANTEE: exactly_once
+
+      KSQL_KSQL_STREAMS_PRODUCER_LINGER_MS: 10
+      KSQL_KSQL_STREAMS_PRODUCER_BATCH_SIZE: 500000
+      #ksql.streams.consumer.max.poll.records: 100
+      KSQL_COMPRESSION_TYPE: 'snappy'
+      #KSQL_LOG_STREAMING_ENABLED: 'true'
+
+      # KSQL_KSQL_STREAMS_AUTO_OFFSET_RESET: earliest
+      # -v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v
+      # Producer Confluent Monitoring Interceptors for Control Center streams monitoring
+      KSQL_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+      KSQL_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+
+      KSQL_JVM_PERFORMANCE_OPTS: -server -XX:MetaspaceSize=96m -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintFlagsFinal -XX:+UseBiasedLocking -XX:+UseG1GC -XX:G1HeapRegionSize=16 -XX:InitiatingHeapOccupancyPercent=35 -XX:MaxGCPauseMillis=20 -XX:MaxInlineLevel=15 -XX:MaxMetaspaceFreeRatio=80 -XX:MinMetaspaceFreeRatio=50 -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true
+    
+  control-center:
+    image: confluentinc/cp-enterprise-control-center
+    hostname: control-center
+    container_name: control-center
+    restart: always
+    depends_on:
+      - kafka-01
+      - kafka-02
+      - schema-registry
+      - kafka-connect
+      - ksqldb
+    ports:
+      - 9021:9021
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: kafka-01:19091,kafka-02:19092
+      CONTROL_CENTER_CONNECT_KAKFA-CONNECT_CLUSTER: kafka-connect:8083
+      CONTROL_CENTER_CONNECT_HEALTHCHECK_ENDPOINT: /connectors
+
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      
+      CONTROL_CENTER_KSQL_KSQLDB-01_URL: http://ksqldb:8088
+      CONTROL_CENTER_KSQL_KSQLDB-01_ADVERTISED_URL: http://ksqldb:8088
+     
+      # CONTROL_CENTER_CONFLUENT_CONTROLCENTER_UI_AUTOUPDATE_ENABLE: 'false'
+      
+      CONTROL_CENTER_CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_COMMAND_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_REPLICATION: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONTROL_CENTER_STREAMS_NUM_STREAM_THREADS: 1
+      CONTROL_CENTER_STREAMS_CACHE_MAX_BYTES_BUFFERING: 0
+      CONTROL_CENTER_CONFLUENT_CONTROLCENTER_STREAMS_NUM_STREAM_THREADS: 10
+      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+
+      CONTROL_CENTER_JVM_PERFORMANCE_OPTS: -server -XX:MetaspaceSize=96m -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintFlagsFinal -XX:+UseBiasedLocking -XX:+UseG1GC -XX:G1HeapRegionSize=16 -XX:InitiatingHeapOccupancyPercent=35 -XX:MaxGCPauseMillis=20 -XX:MaxInlineLevel=15 -XX:MaxMetaspaceFreeRatio=80 -XX:MinMetaspaceFreeRatio=50 -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true
+
+      # CONTROL_CENTER_CONFLUENT_CONTROLCENTER_MODE_ENABLE: 'management'
+      CONFLUENT_CONTROLCENTER_MODE_ENABLE: 'management'
+      CONFLUENT_CONTROLCENTER_UI_AUTOUPDATE_ENABLE: 'false'
+
+    # command:
+    #   - bash
+    #   - -c 
+    #   - |
+    #     echo "Waiting a minute for Kafka brokers to start and necessary topics to be available"
+    #     sleep 15
+    #     /etc/confluent/docker/run
+
+  kafkacat:
+    image: confluentinc/cp-kafkacat:latest
+    container_name: kafkacat
+    depends_on:
+      - kafka-01
+    entrypoint: sleep infinity
+
+  # rest-proxy:
+  #   image: confluentinc/cp-kafka-rest
+  #   depends_on:
+  #     - kafka-01
+  #     - kafka-02
+  #   ports:
+  #     - 8082:8082
+  #   hostname: rest-proxy
+  #   container_name: rest-proxy
+  #   restart: always
+  #   environment:
+  #     KAFKA_REST_HOST_NAME: rest-proxy
+  #     KAFKA_REST_BOOTSTRAP_SERVERS: kafka-01:19091,kafka-02:19092
+  #     KAFKA_REST_LISTENERS: http://0.0.0.0:8082
+  #     KAFKA_REST_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+  #     KAFKA_REST_AUTHENTICATION_METHOD: BASIC
+  #     KAFKA_REST_AUTHENTICATION_REALM: KafkaRestJDBC
+  #     KAFKA_REST_AUTHENTICATION_ROLES: admin,user
+
+  #     KAFKA_REST_CONFLUENT_METADATA_SERVER_URLS_MAX_AGE_MS: 60000
+  #     KAFKA_REST_CLIENT_CONFLUENT_METADATA_SERVER_URLS_MAX_AGE_MS: 60000
+  #     #KAFKA_REST_CONFLUENT_METADATA_BOOTSTRAP_SERVER_URLS: http://kafka-01:8091,http://kafka-02:8092
+
+  #     KAFKA_REST_LOG4J_LOGGERS: kafka.authorizer.logger=INFO
+  #     KAFKA_REST_LOG4J_ROOT_LOGLEVEL: TRACE
+
+  #     KAFKAREST_OPTS: -Djava.security.auth.login.config=/etc/kafka-rest/kafka-rest-jaas.properties
+
+  #   volumes:
+  #     #- $PWD/data/mysql-connector-java-8.0.27.jar:/usr/share/java/kafka/mysql-connector-java-8.0.27.jar    
+  #     - $PWD/kafka-rest-jaas.properties:/etc/kafka-rest/kafka-rest-jaas.properties
+  #     - $PWD/kafka-rest-login.properties:/etc/kafka-rest/kafka-rest-login.properties
+
+
+networks:
+  default:
+    name: confluent

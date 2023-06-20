@@ -1,0 +1,190 @@
+---
+version: '3'
+services:
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect:7.3.2
+    hostname: kafka-connect
+    container_name: kafka-connect
+    restart: unless-stopped
+    ports:
+      - 8083:8083
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: pkc-e82om.ap-northeast-2.aws.confluent.cloud:9092
+      CONNECT_REST_PORT: 8083
+      # CONNECT_REST_HOME: 0.0.0.0
+      CONNECT_GROUP_ID: kafka-connect
+      # CONNECT_PRODUCER_CLIENT_ID: kafka-connect
+      # CONNECT_LISTENERS: http://0.0.0.0:8083
+      CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
+
+      CONNECT_CONFIG_STORAGE_TOPIC: connect-configs
+      CONNECT_OFFSET_STORAGE_TOPIC: connect-offsets
+      CONNECT_STATUS_STORAGE_TOPIC: connect-statuses
+      CONNECT_REPLICATION_FACTOR: 3
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 3
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 3
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 3
+
+      #CONNECT_KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
+      #CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: https://psrc-10wgj.ap-southeast-2.aws.confluent.cloud
+
+      CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
+      CONNECT_LOG4J_LOGGERS: org.apache.kafka.connect.runtime.rest=ERROR,org.reflections=ERROR
+      CONNECT_LOG4J_APPENDER_STDOUT_LAYOUT_CONVERSIONPATTERN: "[%d] %p %X{connector.context}%m (%c:%L)%n"
+
+      # Allow overriding configs on the connector level
+      CONNECT_CONNECTOR_CLIENT_CONFIG_OVERRIDE_POLICY: All
+
+      CONNECT_TOPIC_CREATION_ENABLE: 'true'
+      CONNECT_RETRY_BACKOFF_MS: 500
+      CONNECT_REQUEST_TIMEOUT_MS: 20000
+      CONNECT_PRODUCER_REQUEST_TIMEOUT_MS: 20000
+      CONNECT_PRODUCER_RETRY_BACKOFF_MS: 500
+      CONNECT_CONSUMER_REQUEST_TIMEOUT_MS: 20000
+      CONNECT_CONSUMER_RETRY_BACKOFF_MS: 500
+      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 5000      
+      CONNECT_PRODUCER_ENABLE_IDEMPOTENCE: 'true'
+      CONNECT_PRODUCER_COMPRESSION_TYPE: snappy
+
+      # Interceptor config
+      CLASSPATH: /usr/share/java/monitoring-interceptors/monitoring-interceptors-7.3.2.jar:/usr/share/confluent-hub-components/debezium-debezium-connector-mysql/lib/mysql-connector-java-8.0.28.jar
+      CONNECT_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+      CONNECT_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+      
+      KAFKA_JVM_PERFORMANCE_OPTS: -server -XX:+UseG1GC -XX:GCTimeRatio=1 -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:MaxGCPauseMillis=10000 -XX:InitiatingHeapOccupancyPercent=35 -XX:+ExplicitGCInvokesConcurrent -XX:MaxInlineLevel=15 -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true
+
+      CONNECT_PLUGIN_PATH: /usr/share/java,/etc/kafka-connect/jars,/usr/share/confluent-hub-components,/data/connect-jars
+
+    volumes:
+      #- $PWD/data/mysql-connector-java-8.0.27.jar:/usr/share/java/kafka/mysql-connector-java-8.0.27.jar
+      - $PWD/data:/data
+    command:
+      - /bin/bash
+      - -c
+      - |
+        echo "Installing Connector-plugins"
+        confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:latest
+        confluent-hub install --no-prompt debezium/debezium-connector-postgresql:2.0.1
+        #
+        echo "Launching kafka Connect worker"
+        /etc/confluent/docker/run &
+        #
+        sleep infinity
+
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:7.3.0
+    hostname: control-center
+    container_name: control-center
+    restart: always
+    depends_on:
+      - kafka-connect
+    ports:
+      - 9021:9021
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: kafka-01:19091,kafka-02:19092
+      CONTROL_CENTER_CONNECT_KAKFA-CONNECT_CLUSTER: kafka-connect:8083
+      CONTROL_CENTER_CONNECT_HEALTHCHECK_ENDPOINT: /connectors
+      # CONTROL_CENTER_CONFLUENT_CONTROLCENTER_CONNECT_HEALTHCHECK_ENDPOINT: /connectors
+
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      # The advertised URL needs to be the URL on which the browser
+      #  can access the KSQL server (e.g. http://localhost:8088/info)
+      CONTROL_CENTER_KSQL_KSQLDB-01_URL: http://ksqldb:8088
+      CONTROL_CENTER_KSQL_KSQLDB-01_ADVERTISED_URL: http://ksqldb:8088
+      # -v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v
+      # Useful settings for development/laptop use - modify as needed for Prod
+     
+      CONTROL_CENTER_CONFLUENT_CONTROLCENTER_UI_AUTOUPDATE_ENABLE: 'false'
+      CONTROL_CENTER_CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_COMMAND_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_REPLICATION: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONTROL_CENTER_STREAMS_NUM_STREAM_THREADS: 1
+      CONTROL_CENTER_STREAMS_CACHE_MAX_BYTES_BUFFERING: 0
+      CONTROL_CENTER_CONFLUENT_CONTROLCENTER_STREAMS_NUM_STREAM_THREADS: 10
+      
+      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+
+      CONTROL_CENTER_JVM_PERFORMANCE_OPTS: "-server -XX:MetaspaceSize=96m -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:G1HeapRegionSize=16M -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -Djava.awt-headless=true -Djava.net.preferIPv4Stack=true"
+
+    command:
+      - bash
+      - -c 
+      - |
+        echo "Waiting a minute for Kafka brokers to start and necessary topics to be available"
+        sleep 15
+        /etc/confluent/docker/run
+
+
+# bootstrap.servers=pkc-e82om.ap-northeast-2.aws.confluent.cloud:9092
+# key.converter=org.apache.kafka.connect.storage.StringConverter
+# value.converter=io.confluent.connect.avro.AvroConverter
+
+# ssl.endpoint.identification.algorithm=https
+# security.protocol=SASL_SSL
+# sasl.mechanism=PLAIN
+# sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="V4YKVCXVBMTFQGBI" password="eJ2AKLUD88aJDTe2GSfX6X5C3IcahmEmzipqzwUnsIn7m9D3Qbd8gfkbSMM6RZo4";
+# request.timeout.ms=20000
+# retry.backoff.ms=500
+
+# producer.bootstrap.servers=pkc-e82om.ap-northeast-2.aws.confluent.cloud:9092
+# producer.ssl.endpoint.identification.algorithm=https
+# producer.security.protocol=SASL_SSL
+# producer.sasl.mechanism=PLAIN
+# producer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="V4YKVCXVBMTFQGBI" password="eJ2AKLUD88aJDTe2GSfX6X5C3IcahmEmzipqzwUnsIn7m9D3Qbd8gfkbSMM6RZo4";
+# producer.request.timeout.ms=20000
+# producer.retry.backoff.ms=500
+
+# consumer.bootstrap.servers=pkc-e82om.ap-northeast-2.aws.confluent.cloud:9092
+# consumer.ssl.endpoint.identification.algorithm=https
+# consumer.security.protocol=SASL_SSL
+# consumer.sasl.mechanism=PLAIN
+# consumer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="V4YKVCXVBMTFQGBI" password="eJ2AKLUD88aJDTe2GSfX6X5C3IcahmEmzipqzwUnsIn7m9D3Qbd8gfkbSMM6RZo4";
+# consumer.request.timeout.ms=20000
+# consumer.retry.backoff.ms=500
+
+# offset.flush.interval.ms=10000
+# offset.storage.file.filename=/tmp/connect.offsets
+# group.id=connect-cluster
+# offset.storage.topic=connect-offsets
+# offset.storage.replication.factor=3
+# offset.storage.partitions=3
+# config.storage.topic=connect-configs
+# config.storage.replication.factor=3
+# status.storage.topic=connect-status
+# status.storage.replication.factor=3
+
+# # Required connection configs for Confluent Cloud Schema Registry
+# value.converter.basic.auth.credentials.source=USER_INFO
+# value.converter.schema.registry.basic.auth.user.info=SX7U4R67WZ6SALSU:0Bej/PeZHnVB9btu5V8geaZsAngBlq+OkgAgcqjEgl4M3+Idxj1De1m5s3EI4FzB
+# value.converter.schema.registry.url=https://psrc-10wgj.ap-southeast-2.aws.confluent.cloud
+# database.history.kafka.bootstrap.servers=pkc-e82om.ap-northeast-2.aws.confluent.cloud:9092
+# database.history.consumer.security.protocol=SASL_SSL
+# database.history.consumer.ssl.endpoint.identification.algorithm=https
+# database.history.consumer.sasl.mechanism=PLAIN
+# database.history.consumer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="V4YKVCXVBMTFQGBI" password="eJ2AKLUD88aJDTe2GSfX6X5C3IcahmEmzipqzwUnsIn7m9D3Qbd8gfkbSMM6RZo4";
+# database.history.producer.security.protocol=SASL_SSL
+# database.history.producer.ssl.endpoint.identification.algorithm=https
+# database.history.producer.sasl.mechanism=PLAIN
+# database.history.producer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="V4YKVCXVBMTFQGBI" password="eJ2AKLUD88aJDTe2GSfX6X5C3IcahmEmzipqzwUnsIn7m9D3Qbd8gfkbSMM6RZo4";
+
+# confluent.topic.bootstrap.servers=pkc-e82om.ap-northeast-2.aws.confluent.cloud:9092
+# confluent.topic.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="V4YKVCXVBMTFQGBI" password="eJ2AKLUD88aJDTe2GSfX6X5C3IcahmEmzipqzwUnsIn7m9D3Qbd8gfkbSMM6RZo4";
+# confluent.topic.security.protocol=SASL_SSL
+# confluent.topic.sasl.mechanism=PLAIN
+
+# reporter.admin.bootstrap.servers=pkc-e82om.ap-northeast-2.aws.confluent.cloud:9092
+# reporter.admin.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="V4YKVCXVBMTFQGBI" password="eJ2AKLUD88aJDTe2GSfX6X5C3IcahmEmzipqzwUnsIn7m9D3Qbd8gfkbSMM6RZo4";
+# reporter.admin.security.protocol=SASL_SSL
+# reporter.admin.sasl.mechanism=PLAIN
+
+# reporter.producer.bootstrap.servers=pkc-e82om.ap-northeast-2.aws.confluent.cloud:9092
+# reporter.producer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="V4YKVCXVBMTFQGBI" password="eJ2AKLUD88aJDTe2GSfX6X5C3IcahmEmzipqzwUnsIn7m9D3Qbd8gfkbSMM6RZo4";
+# reporter.producer.security.protocol=SASL_SSL
+# reporter.producer.sasl.mechanism=PLAIN
+
