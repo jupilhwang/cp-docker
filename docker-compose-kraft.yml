@@ -400,6 +400,8 @@ services:
 
       CONNECT_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
       CONNECT_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+      CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_BOOTSTRAP_SERVERS: kafka-01:19091,kafka-02:19092,kafka-03:19093
+      CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_BOOTSTRAP_SERVERS: kafka-01:19091,kafka-02:19092,kafka-03:19093
       
       # EXTRA_ARGS: -javaagent:/etc/confluent/jmx_prometheus_javaagent.jar=8077:/etc/confluent/kafka_connect.yml
       # JMX_PORT: "7077"
@@ -480,7 +482,9 @@ services:
       # Producer Confluent Monitoring Interceptors for Control Center streams monitoring
       KSQL_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
       KSQL_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
-
+      KSQL_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_BOOTSTRAP_SERVERS: kafka-01:19091,kafka-02:19092,kafka-03:19093
+      KSQL_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_BOOTSTRAP_SERVERS: kafka-01:19091,kafka-02:19092,kafka-03:19093
+      
       KSQL_JVM_PERFORMANCE_OPTS: -server -XX:MetaspaceSize=96m -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintFlagsFinal -XX:+UseBiasedLocking -XX:+UseG1GC -XX:G1HeapRegionSize=16 -XX:InitiatingHeapOccupancyPercent=35 -XX:MaxGCPauseMillis=20 -XX:MaxInlineLevel=15 -XX:MaxMetaspaceFreeRatio=80 -XX:MinMetaspaceFreeRatio=50 -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true
     
   control-center:
