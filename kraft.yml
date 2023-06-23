@@ -45,30 +45,36 @@ services:
       KAFKA_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
 
       #KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
-      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter,io.confluent.telemetry.reporter.TelemetryReporter
       #KAFKA_METRIC_REPORTERS: io.confluent.telemetry.reporter.TelemetryReporter
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter,io.confluent.telemetry.reporter.TelemetryReporter
       
-      KAFKA_CONFLUENT_REPORTERS_TELEMETRY_AUTO_ENABLE: 'false'
+      KAFKA_CONFLUENT_REPORTERS_TELEMETRY_AUTO_ENABLE: 'true'
 
       KAFKA_CONFLUENT_TELEMETRY_ENABLED: 'true'
-      #KAFKA_CONFLUENT_TELEMETRY_EXPORTER_\__CONFLUENT_ENABLED: 'true'
-      #KAFKA_CONFLUENT_TELEMETRY_EXPORTER_\__LOCAL_ENABLED: 'true'
+      #KAFKA_CONFLUENT_TELEMETRY_EXPORTER_._CONFLUENT_ENABLED: 'true'
+      #KAFKA_CONFLUENT_TELEMETRY_EXPORTER_._LOCAL_ENABLED: 'true'
       # KAFKA_CONFLUENT_TELEMETRY_COLLECTORS: basic,extended
-      KAFKA_CONFLUENT_TELEMETRY_METRICS_COLLECTOR_INTERVAL_MS: 30000
-      KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAFKA_TYPE: kafka
-      KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAFKA_ENABLED: 'true'
-      KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAFKA_PRODUCER_BOOTSTRAP_SERVERS: kafka-01:19091
-      KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAFKA_TOPIC_REPLICAS: 1
-      KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAFKA_TOPIC_NAME: telemetry
-      KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAFKA_TOPIC_MAX_MESSAGE_BYTES: 8388608
-      #KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAFKA_METRICS_INCLUDE: io.confluent.kafka.server/*
+      # KAFKA_CONFLUENT_TELEMETRY_METRICS_COLLECTOR_INTERVAL_MS: 10000
+      KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAKAO_TYPE: kafka
+      KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAKAO_ENABLED: 'true'
+      KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAKAO_PRODUCER_BOOTSTRAP_SERVERS: kafka-01:19091
+      KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAKAO_TOPIC_PARTITIONS: 12
+      KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAKAO_TOPIC_REPLICAS: 1
+      KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAKAO_TOPIC_NAME: telemetry
+      #KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAKAO_TOPIC_MAX_MESSAGE_BYTES: 8388608
+      KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAKAO_METRICS_INCLUDE: .*kafka.server/.*|.*system/.*
+      # KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAKAO_METRICS_INCLUDE: .*MaxLag.*|kafka.log:type=Log,name=Size.*|.*name=(ActiveControllerCount|BytesInPerSec|BytesOutPerSec|CaughtUpReplicasCount|FailedFetchRequestsPerSec|FailedProduceRequestsPerSec|InSyncReplicasCount|LeaderCount|LeaderElectionRateAndTimeMs|LocalTimeMs|LogEndOffset|LogStartOffset|NetworkProcessorAvgIdlePercent|NumLogSegments|NumPartitionsInError|OfflinePartitionsCount|ObserverReplicasCount|PartitionCount|RemoteTimeMs|ReplicasCount|RequestHandlerAvgIdlePercent|RequestQueueSize|RequestQueueTimeMs|RequestsPerSec|ResponseQueueSize|ResponseQueueTimeMs|ResponseSendTimeMs|Size|TierSize|TotalFetchRequestsPerSec|TotalLag|TotalProduceRequestsPerSec|TotalSize|TotalTimeMs|UncleanLeaderElectionsPerSec|UnderReplicated|UnderReplicatedPartitions|UnderMinIsrPartitionCount|ZooKeeperDisconnectsPerSec|ZooKeeperExpiresPerSec|TieredPartitionsUndergoingUncleanLeaderRecoveryCount|NonTieredPartitionsUndergoingUncleanLeaderRecoveryCount|TierTopicPartitionsUndergoingUncleanLeaderRecoveryCount|ContiguousUnhealthySamples|ContiguousSamplesEngineThreadGroupsStuck|ContiguousSamplesStorageThreadGroupsStuck|ContiguousSamplesNoStorageThreadMakingProgress).*|.*(BytesFetchedRate).*
+
+      # KAFKA_CONFLUENT_TELEMETRY_EXPORTER_KAKAO_METRICS_INCLUDE: (io.confluent.kafka.server/broker_load/broker_load_percent|io.confluent.kafka.server/broker_topic/bytes_in/rate/1_min|io.confluent.kafka.server/broker_topic/bytes_out/rate/1_min|io.confluent.kafka.server/broker_topic/messages_in/rate/1_min|io.confluent.kafka.server/broker_topic/replication_bytes_in/rate/1_min|io.confluent.kafka.server/broker_topic/replication_bytes_out/rate/1_min|io.confluent.kafka.server/broker_topic/total_fetch_requests/rate/1_min|io.confluent.kafka.server/broker_topic/total_follower_fetch_requests/rate/1_min|io.confluent.kafka.server/broker_topic/total_produce_requests/rate/1_min|io.confluent.kafka.server/log/size|io.confluent.kafka.server/log_flush/log_flush_rate_and_time_ms|io.confluent.kafka.server/log_flush/log_flush_rate_and_time_ms/rate/1_min|io.confluent.kafka.server/request/local_time_ms|io.confluent.kafka.server/request/request_queue_time_ms|io.confluent.kafka.server/request/requests/rate/1_min|io.confluent.kafka.server/request/total_time_ms|io.confluent.kafka.server/request_channel/request_queue_size|io.confluent.kafka.server/request_channel/response_queue_size|io.confluent.kafka.server/request_handler_pool/request_handler_avg_idle_percent/rate/1_min|io.confluent.kafka.server/server/linux_system_cpu_utilization|io.confluent.system/volume/disk_total_bytes|io.confluent.system/jvm/mem)
+
+      #	metrics.include = (io.confluent.kafka.server/broker_load/broker_load_percent|io.confluent.kafka.server/broker_topic/bytes_in/rate/1_min|io.confluent.kafka.server/broker_topic/bytes_out/rate/1_min|io.confluent.kafka.server/broker_topic/messages_in/rate/1_min|io.confluent.kafka.server/broker_topic/replication_bytes_in/rate/1_min|io.confluent.kafka.server/broker_topic/replication_bytes_out/rate/1_min|io.confluent.kafka.server/broker_topic/total_fetch_requests/rate/1_min|io.confluent.kafka.server/broker_topic/total_follower_fetch_requests/rate/1_min|io.confluent.kafka.server/broker_topic/total_produce_requests/rate/1_min|io.confluent.kafka.server/log/size|io.confluent.kafka.server/log_flush/log_flush_rate_and_time_ms|io.confluent.kafka.server/log_flush/log_flush_rate_and_time_ms/rate/1_min|io.confluent.kafka.server/request/local_time_ms|io.confluent.kafka.server/request/request_queue_time_ms|io.confluent.kafka.server/request/requests/rate/1_min|io.confluent.kafka.server/request/total_time_ms|io.confluent.kafka.server/request_channel/request_queue_size|io.confluent.kafka.server/request_channel/response_queue_size|io.confluent.kafka.server/request_handler_pool/request_handler_avg_idle_percent/rate/1_min|io.confluent.kafka.server/server/linux_system_cpu_utilization|io.confluent.system/volume/disk_total_bytes)
 
       KAFKA_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka-01:19091
       KAFKA_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       KAFKA_CONFLUENT_METRICS_ENABLE: 'true'
       KAFKA_CONFLUENT_SUPPORT_CUSTOMER_ID: anonymous
 
-      KAFKA_METRICS_SAMPLE_WINDOW_MS: 10000
+      KAFKA_METRICS_SAMPLE_WINDOW_MS: 5000
       KAFKA_METRICS_NUM_SAMPLES: 2
 
       KAFKA_LOG4J_LOGGERS: io.confluent.metrics=DEBUG,io.confluent.telemetry=DEBUG
@@ -100,13 +106,13 @@ services:
       # KAFKA_HEAP_OPTS: "-Xms2g -Xmx2g"
       #EXTRA_ARGS: -javaagent:/etc/confluent/jmx_prometheus_javaagent.jar=8070:/etc/confluent/kafka.yml
       # KAFKA_HEAP_OPTS: "-Xms8g -Xmx8g"
-      KAFKA_JMX_PORT: 9999
+      # KAFKA_JMX_PORT: 9999
       # KAFKA_JMX_OPTS: -Djava.rmi.server.hostname=kafka-01 -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false  -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.rmi.port=9999
       KAFKA_JVM_PERFORMANCE_OPTS: -server -XX:MetaspaceSize=96m -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintFlagsFinal -XX:+UseBiasedLocking -XX:+UseG1GC -XX:G1HeapRegionSize=16 -XX:InitiatingHeapOccupancyPercent=35 -XX:MaxGCPauseMillis=20 -XX:MaxInlineLevel=15 -XX:MaxMetaspaceFreeRatio=80 -XX:MinMetaspaceFreeRatio=50 -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true
     
     # volumes:
     #   - ./update_run.sh:/tmp/update_run.sh
-    # command: "bash -c 'if [ ! -f /tmp/update_run.sh ]; then echo \"ERROR: Did you forget the update_run.sh file that came with this docker-compose.yml file?\" && exit 1 ; else /tmp/update_run.sh && /etc/confluent/docker/run ; fi'"
+    # command: "bash -c 'if [ ! -f /tmp/update_run.sh ]; then echo .ERROR: Did you forget the update_run.sh file that came with this docker-compose.yml file?. && exit 1 ; else /tmp/update_run.sh && /etc/confluent/docker/run ; fi'"
     command: 
       - /bin/bash
       - -c
@@ -144,12 +150,7 @@ services:
       - 9021:9021
     environment:
       CONTROL_CENTER_BOOTSTRAP_SERVERS: kafka-01:19091
-
-
       CONTROL_CENTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
-      
-
-     
       # CONTROL_CENTER_CONFLUENT_CONTROLCENTER_UI_AUTOUPDATE_ENABLE: 'false'
       
       CONTROL_CENTER_CONFLUENT_METRICS_TOPIC_REPLICATION: 1
@@ -160,7 +161,7 @@ services:
       CONTROL_CENTER_INTERNAL_TOPICS_REPLICATION: 1
       CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
       CONTROL_CENTER_STREAMS_NUM_STREAM_THREADS: 1
-      CONTROL_CENTER_STREAMS_CACHE_MAX_BYTES_BUFFERING: 0
+      CONTROL_CENTER_STREAMS_CACHE_MAX_BYTES_BUFFERING: 1000000000
       CONTROL_CENTER_CONFLUENT_CONTROLCENTER_STREAMS_NUM_STREAM_THREADS: 10
       CONFLUENT_METRICS_TOPIC_REPLICATION: 1
 
