@@ -199,12 +199,22 @@ services:
       CONNECT_PRODUCER_COMPRESSION_TYPE: lz4
 
       # Interceptor config
-      CLASSPATH: /usr/share/confluent-hub-components/debezium-debezium-connector-mysql/lib/mysql-connector-java-8.0.28.jar
+      # CLASSPATH: /usr/share/confluent-hub-components/debezium-debezium-connector-mysql/lib/mysql-connector-java-8.0.28.jar:/usr/share/java/opentracing-kafka-client.jar:/usr/share/java/opentracing-api.jar:/usr/share/java/opentracing-util.jar:/usr/share/java/opentracing-noop.jar
+      CLASSPATH: /usr/share/confluent-hub-components/debezium-debezium-connector-mysql/lib/mysql-connector-java-8.0.28.jar:/etc/kafka-connect/jars/brave-kafka-interceptor.jar
 
-      CONNECT_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+      # CONNECT_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+      CONNECT_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor,brave.kafka.interceptor.TracingProducerInterceptor
       CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_BOOTSTRAP_SERVERS: kafka-01:19092
-      CONNECT_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+      CONNECT_PRODUCER_ZIPKIN_SENDER_TYPE: HTTP
+      CONNECT_PRODUCER_ZIPKIN_HTTP_ENDPOINT: http://172.31.62.53:9411/api/v2/spans
+      CONNECT_PRODUCER_ZIPKIN_LOCAL_SERVICE_NAME: datagen-connect
+
+      # CONNECT_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+      CONNECT_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor,brave.kafka.interceptor.TracingConsumerInterceptor
       CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_BOOTSTRAP_SERVERS: kafka-01:19092
+      CONNECT_CONSUMER_ZIPKIN_SENDER_TYPE: HTTP
+      CONNECT_CONSUMER_ZIPKIN_HTTP_ENDPOINT: "http://172.31.62.53:9411/api/v2/spans"
+      CONNECT_CONSUMER_ZIPKIN_LOCAL_SERVICE_NAME: datagen-connect
       
       # CONNECT_REST_EXTENSION_CLASSES: io.confluent.connect.secretregistry.ConnectSecretRegistryExtension
       # CONNECT_REST_SERVLET_INITIALIZOR_CLASSES: io.confluent.common.security.jetty.initializer.InstallBearerOrBasicSecurityHandler
@@ -214,8 +224,11 @@ services:
       # CONNECT_CONFIG_PROVIDERS_SECRET_PARAM_MASTER_ENCRYPTION_KEY: 'password1234'
       # CONNECT_CONFIG_PROVIDERS_SECRET_PARAM_KAFKASTORE_BOOTSTRAP_SERVERS: kafka-01:19092
 
-      CONNECT_CONSUMER_OVERRIDE_MAX_PARTITION_FETCH_BYTES: 1048576
+      CONNECT_CONSUMER_OVERRIDE_MAX_PARTITION_FETCH_BYTES: 10485760
       CONNECT_CONSUMER_OVERRIDE_FETCH_MAX_BYTES: 52428800
+
+      CONNECT_LOG4J_LOGGERS: brave.kafka.interceptor=DEBUG
+      CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
 
       # EXTRA_ARGS: -javaagent:/etc/confluent/jmx_prometheus_javaagent.jar=8077:/etc/confluent/kafka_connect.yml
       # JMX_PORT: "7077"
@@ -231,6 +244,10 @@ services:
       - /bin/bash
       - -c
       - |
+        echo "Download zipkin Interceptor"
+        #
+        wget -O /etc/kafka-connect/jars/brave-kafka-interceptor.jar https://github.com/openzipkin-contrib/brave-kafka-interceptor/releases/download/0.5.0/brave-kafka-interceptor-0.5.0.jar
+        #
         echo "Installing JMX Exporter"
         #
         # wget -O /etc/confluent/jmx_prometheus_javaagent.jar https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.18.0/jmx_prometheus_javaagent-0.18.0.jar
