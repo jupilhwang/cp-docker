@@ -205,17 +205,28 @@ services:
       # CONNECT_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
       CONNECT_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor,brave.kafka.interceptor.TracingProducerInterceptor
       CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_BOOTSTRAP_SERVERS: kafka-01:19092
-      CONNECT_PRODUCER_ZIPKIN_SENDER_TYPE: HTTP
-      CONNECT_PRODUCER_ZIPKIN_HTTP_ENDPOINT: http://172.31.62.53:9411/api/v2/spans
-      CONNECT_PRODUCER_ZIPKIN_LOCAL_SERVICE_NAME: datagen-connect
+      CONNECT_PRODUCER_ZIPKIN_SENDER_TYPE: KAFKA
+      CONNECT_PRODUCER_ZIPKIN_ENCODING: PROTO3
+      CONNECT_PRODUCER_ZIPKIN_KAFKA_BOOTSTRAP_SERVERS: kafka-01:19092
+      CONNECT_PRODUCER_ZIPKIN_LOCAL_SERVICE_NAME: datagen-connect-source
+      CONNECT_PRODUCER_ZIPKIN_KAFKA_TOPIC: zipkin
 
+      # CONNECT_PRODUCER_ZIPKIN_SENDER_TYPE: HTTP
+      # CONNECT_PRODUCER_ZIPKIN_HTTP_ENDPOINT: http://172.31.62.53:9411/api/v2/spans
+      # CONNECT_PRODUCER_ZIPKIN_LOCAL_SERVICE_NAME: datagen-connect
+      
       # CONNECT_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
       CONNECT_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor,brave.kafka.interceptor.TracingConsumerInterceptor
       CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_BOOTSTRAP_SERVERS: kafka-01:19092
-      CONNECT_CONSUMER_ZIPKIN_SENDER_TYPE: HTTP
-      CONNECT_CONSUMER_ZIPKIN_HTTP_ENDPOINT: "http://172.31.62.53:9411/api/v2/spans"
-      CONNECT_CONSUMER_ZIPKIN_LOCAL_SERVICE_NAME: datagen-connect
-      
+      CONNECT_CONSUMER_ZIPKIN_SENDER_TYPE: KAFKA
+      CONNECT_CONSUMER_ZIPKIN_ENCODING: PROTO3
+      CONNECT_CONSUMER_ZIPKIN_KAFKA_BOOTSTRAP_SERVERS: kafka-01:19092
+      CONNECT_CONSUMER_ZIPKIN_LOCAL_SERVICE_NAME: datagen-connect-sink
+      CONNECT_CONSUMER_ZIPKIN_KAFKA_TOPIC: zipkin
+      # CONNECT_CONSUMER_ZIPKIN_SENDER_TYPE: HTTP
+      # CONNECT_CONSUMER_ZIPKIN_HTTP_ENDPOINT: "http://172.31.62.53:9411/api/v2/spans"
+      # CONNECT_CONSUMER_ZIPKIN_LOCAL_SERVICE_NAME: datagen-connect
+
       # CONNECT_REST_EXTENSION_CLASSES: io.confluent.connect.secretregistry.ConnectSecretRegistryExtension
       # CONNECT_REST_SERVLET_INITIALIZOR_CLASSES: io.confluent.common.security.jetty.initializer.InstallBearerOrBasicSecurityHandler
 
@@ -256,7 +267,7 @@ services:
         echo "Installing Connector-plugins"
         confluent-hub install --no-prompt confluentinc/kafka-connect-datagen:latest
         confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:latest
-        # confluent-hub install --no-prompt debezium/debezium-connector-mysql:1.9.3
+        confluent-hub install --no-prompt debezium/debezium-connector-mysql:latest
         #
         echo "Launching kafka Connect worker"
         /etc/confluent/docker/run &

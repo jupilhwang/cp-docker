@@ -1,0 +1,23 @@
+{
+    "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+    "database.hostname": "mysql-database-01.cjqfgzg8mzmt.ap-northeast-2.rds.amazonaws.com",
+    "database.include.list": "test",
+    "database.password": "adminpassword",
+    "database.port": "3306",
+    "database.server.id": "1",
+    "database.user": "admin",
+    "driver.serverTimezone": "Asia/Seoul",
+    "decimal.handling.mode": "double",
+    "name": "MySqlConnectorConnector_0",
+    "offsets.storage.topic": "mysql_cdc_offsets",
+    "schema.history.internal.kafka.bootstrap.servers": "kafka-01:9092",
+    "schema.history.internal.kafka.topic": "database_histroy",
+    "schema.history.internal.skip.unparseable.ddl": "false",
+    "schema.history.internal.store.only.captured.tables.ddl": "false",
+    "snapshot.locking.mode": "minimal",
+    "snapshot.mode": "initial",
+    "tasks.max": "1",
+    "time.precision.mode": "adaptive_time_microseconds",
+    "topic.prefix": "mysql"
+}
+
