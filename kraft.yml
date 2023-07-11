@@ -10,6 +10,7 @@ services:
       - 8090:8090
       - 9092:9092
       - 19092:19092
+      - 8070:8070
     environment:
       # kraft setting
       KAFKA_NODE_ID: 1
@@ -29,8 +30,8 @@ services:
       KAFKA_MESSAGE_MAX_BYTES: 2000000
       KAFKA_REPLICA_FETCH_MAX_BYTES: 2097152
       KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE: 'false'
-      #KAFKA_CONFLUENT_CLUSTER_LINK_ENABLE: 'false'
-      #KAFKA_PASSWORD_ENCODER_SECRET: 'encoder-secret'
+      KAFKA_CONFLUENT_CLUSTER_LINK_ENABLE: 'false'
+      KAFKA_PASSWORD_ENCODER_SECRET: 'encoder-secret'
    
       KAFKA_DEFAULT_REPLICATION_FACTOR: 1
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -41,6 +42,8 @@ services:
       KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_CONFLUENT_CLUSTER_LINK_METADATA_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+
+      KAFKA_CONFLUENT_LICENSE_TOPIC: _confluent-command
 
       #KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
       #KAFKA_METRIC_REPORTERS: io.confluent.telemetry.reporter.TelemetryReporter
@@ -88,6 +91,7 @@ services:
       KAFKA_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
       KAFKA_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_BOOTSTRAP_SERVERS: kafka-01:19092
 
+      KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLED: 'false'
 
       # Schema Registry
       KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081
@@ -113,10 +117,10 @@ services:
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
 
       # KAFKA_HEAP_OPTS: "-Xms2g -Xmx2g"
-      #EXTRA_ARGS: -javaagent:/etc/confluent/jmx_prometheus_javaagent.jar=8070:/etc/confluent/kafka.yml
+      EXTRA_ARGS: -javaagent:/etc/confluent/jmx_prometheus_javaagent.jar=8070:/etc/confluent/kafka.yml
       # KAFKA_HEAP_OPTS: "-Xms8g -Xmx8g"
-      # KAFKA_JMX_PORT: 9999
-      # KAFKA_JMX_OPTS: -Djava.rmi.server.hostname=kafka-01 -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false  -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.rmi.port=9999
+      KAFKA_JMX_PORT: 9999
+      KAFKA_JMX_OPTS: -Djava.rmi.server.hostname=kafka-01 -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false  -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.rmi.port=9999
       KAFKA_JVM_PERFORMANCE_OPTS: -server -XX:MetaspaceSize=96m -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintFlagsFinal -XX:+UseBiasedLocking -XX:+UseG1GC -XX:G1HeapRegionSize=16 -XX:InitiatingHeapOccupancyPercent=35 -XX:MaxGCPauseMillis=20 -XX:MaxInlineLevel=15 -XX:MaxMetaspaceFreeRatio=80 -XX:MinMetaspaceFreeRatio=50 -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true
     
     # volumes:
@@ -126,8 +130,8 @@ services:
       - /bin/bash
       - -c
       - |
-        #wget -O /etc/confluent/jmx_prometheus_javaagent.jar https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.18.0/jmx_prometheus_javaagent-0.18.0.jar
-        #wget -O /etc/confluent/kafka.yml https://raw.githubusercontent.com/confluentinc/jmx-monitoring-stacks/7.2-post/shared-assets/jmx-exporter/kafka_broker_p99only.yml
+        wget -O /etc/confluent/jmx_prometheus_javaagent.jar https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.18.0/jmx_prometheus_javaagent-0.18.0.jar
+        wget -O /etc/confluent/kafka.yml https://raw.githubusercontent.com/confluentinc/jmx-monitoring-stacks/7.3-post/shared-assets/jmx-exporter/kafka_broker.yml
         echo "Launching kafka Connect worker"
         /etc/confluent/docker/run &
         #
@@ -157,6 +161,8 @@ services:
       - schema-registry
     ports:
       - 8083:8083
+      - 8077:8077
+      - 7077:7077
     environment:
       CONNECT_BOOTSTRAP_SERVERS: kafka-01:19092
       CONNECT_REST_PORT: 8083
@@ -193,10 +199,18 @@ services:
       CONNECT_PRODUCER_RETRY_BACKOFF_MS: 500
       CONNECT_CONSUMER_REQUEST_TIMEOUT_MS: 20000
       CONNECT_CONSUMER_RETRY_BACKOFF_MS: 500
-      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 5000      
+      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 5000
 
       CONNECT_PRODUCER_ENABLE_IDEMPOTENCE: 'true'
       CONNECT_PRODUCER_COMPRESSION_TYPE: lz4
+
+      CONNECT_CONFLUENT_LICENSE_TOPIC: _confluent-command
+
+      # trace records
+      # CONNECT_TRACE_RECORDS_ENABLE: 'true'
+      # CONNECT_TRACE_RECORDS_TOPIC: connect-traces # default
+      # CONNECT_TRACE_RECORDS_TOPIC_PARTITION: 1  # default
+      # CONNECT_TRACE_RECORDS_TOPIC_REPLICATION_FACTOR: 1 # default : 3
 
       # Interceptor config
       # CLASSPATH: /usr/share/confluent-hub-components/debezium-debezium-connector-mysql/lib/mysql-connector-java-8.0.28.jar:/usr/share/java/opentracing-kafka-client.jar:/usr/share/java/opentracing-api.jar:/usr/share/java/opentracing-util.jar:/usr/share/java/opentracing-noop.jar
@@ -205,11 +219,12 @@ services:
       # CONNECT_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
       CONNECT_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor,brave.kafka.interceptor.TracingProducerInterceptor
       CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_BOOTSTRAP_SERVERS: kafka-01:19092
+
       CONNECT_PRODUCER_ZIPKIN_SENDER_TYPE: KAFKA
-      CONNECT_PRODUCER_ZIPKIN_ENCODING: PROTO3
       CONNECT_PRODUCER_ZIPKIN_KAFKA_BOOTSTRAP_SERVERS: kafka-01:19092
-      CONNECT_PRODUCER_ZIPKIN_LOCAL_SERVICE_NAME: datagen-connect-source
       CONNECT_PRODUCER_ZIPKIN_KAFKA_TOPIC: zipkin
+      CONNECT_PRODUCER_ZIPKIN_ENCODING: PROTO3
+      CONNECT_PRODUCER_ZIPKIN_LOCAL_SERVICE_NAME: connect-source
 
       # CONNECT_PRODUCER_ZIPKIN_SENDER_TYPE: HTTP
       # CONNECT_PRODUCER_ZIPKIN_HTTP_ENDPOINT: http://172.31.62.53:9411/api/v2/spans
@@ -218,12 +233,13 @@ services:
       # CONNECT_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
       CONNECT_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor,brave.kafka.interceptor.TracingConsumerInterceptor
       CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_BOOTSTRAP_SERVERS: kafka-01:19092
+
       CONNECT_CONSUMER_ZIPKIN_SENDER_TYPE: KAFKA
-      CONNECT_CONSUMER_ZIPKIN_ENCODING: PROTO3
       CONNECT_CONSUMER_ZIPKIN_KAFKA_BOOTSTRAP_SERVERS: kafka-01:19092
-      CONNECT_CONSUMER_ZIPKIN_LOCAL_SERVICE_NAME: datagen-connect-sink
       CONNECT_CONSUMER_ZIPKIN_KAFKA_TOPIC: zipkin
-      
+      CONNECT_CONSUMER_ZIPKIN_ENCODING: PROTO3
+      CONNECT_CONSUMER_ZIPKIN_LOCAL_SERVICE_NAME: connect-sink
+
       # CONNECT_CONSUMER_ZIPKIN_SENDER_TYPE: HTTP
       # CONNECT_CONSUMER_ZIPKIN_HTTP_ENDPOINT: "http://172.31.62.53:9411/api/v2/spans"
       # CONNECT_CONSUMER_ZIPKIN_LOCAL_SERVICE_NAME: datagen-connect
@@ -239,18 +255,18 @@ services:
       CONNECT_CONSUMER_OVERRIDE_MAX_PARTITION_FETCH_BYTES: 10485760
       CONNECT_CONSUMER_OVERRIDE_FETCH_MAX_BYTES: 52428800
 
-      CONNECT_LOG4J_LOGGERS: brave.kafka.interceptor=DEBUG
+      CONNECT_LOG4J_LOGGERS: org.apache.kafka.connect.runtime.tracing=DEBUG
       CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
 
-      # EXTRA_ARGS: -javaagent:/etc/confluent/jmx_prometheus_javaagent.jar=8077:/etc/confluent/kafka_connect.yml
-      # JMX_PORT: "7077"
-      # KAFKA_JMX_OPTS: "-Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+      EXTRA_ARGS: -javaagent:/etc/confluent/jmx_prometheus_javaagent.jar=8077:/etc/confluent/kafka_connect.yml
+      JMX_PORT: "7077"
+      KAFKA_JMX_OPTS: "-Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
       KAFKA_JVM_PERFORMANCE_OPTS: -server -XX:MetaspaceSize=96m -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintFlagsFinal -XX:+UseBiasedLocking -XX:+UseG1GC -XX:G1HeapRegionSize=16 -XX:InitiatingHeapOccupancyPercent=35 -XX:MaxGCPauseMillis=20 -XX:MaxInlineLevel=15 -XX:MaxMetaspaceFreeRatio=80 -XX:MinMetaspaceFreeRatio=50 -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true
 
       CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components,/data/connect-jars
 
     volumes:
-      # - $PWD/data/mysql-connector-java-8.0.27.jar:/usr/share/java/kafka/mysql-connector-java-8.0.27.jar
+      - $PWD/data/mysql-connector-java-8.0.27.jar:/usr/share/java/kafka/mysql-connector-java-8.0.27.jar
       - $PWD/data:/data
     command:
       - /bin/bash
@@ -262,13 +278,20 @@ services:
         #
         echo "Installing JMX Exporter"
         #
-        # wget -O /etc/confluent/jmx_prometheus_javaagent.jar https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.18.0/jmx_prometheus_javaagent-0.18.0.jar
-        # wget -O /etc/confluent/kafka_connect.yml https://raw.githubusercontent.com/confluentinc/jmx-monitoring-stacks/7.2-post/shared-assets/jmx-exporter/kafka_connect.yml
+        wget -O /etc/confluent/jmx_prometheus_javaagent.jar https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.18.0/jmx_prometheus_javaagent-0.18.0.jar
+        wget -O /etc/confluent/kafka_connect.yml https://raw.githubusercontent.com/confluentinc/jmx-monitoring-stacks/7.3-post/shared-assets/jmx-exporter/kafka_connect.yml
         #
         echo "Installing Connector-plugins"
         confluent-hub install --no-prompt confluentinc/kafka-connect-datagen:latest
+        confluent-hub install --no-prompt mdrogalis/voluble:latest
         confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:latest
         confluent-hub install --no-prompt debezium/debezium-connector-mysql:latest
+        confluent-hub install --no-prompt mongodb/kafka-connect-mongodb:latest
+        confluent-hub install --no-prompt debezium/debezium-connector-postgresql:latest
+        confluent-hub install --no-prompt confluentinc/kafka-connect-elasticsearch:latest
+        confluent-hub install --no-prompt confluentinc/kafka-connect-oracle-cdc:latest
+        confluent-hub install --no-prompt confluentinc/connect-transforms:latest
+        confluent-hub install --no-prompt jcustenborder/kafka-connect-transform-common:latest
         #
         echo "Launching kafka Connect worker"
         /etc/confluent/docker/run &
@@ -344,28 +367,27 @@ services:
       CONTROL_CENTER_BOOTSTRAP_SERVERS: kafka-01:19092
       CONTROL_CENTER_CONFLUENT_CONTROLCENTER_UI_AUTOUPDATE_ENABLE: 'false'
 
-      CONTROL_CENTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081       # default value : localhost:8081
 
       CONTROL_CENTER_CONNECT_KAKFA-CONNECT_CLUSTER: kafka-connect:8083
       CONTROL_CENTER_CONNECT_HEALTHCHECK_ENDPOINT: /connectors
 
-      CONTROL_CENTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
-      
       CONTROL_CENTER_KSQL_KSQLDB-01_URL: http://ksqldb:8088
       CONTROL_CENTER_KSQL_KSQLDB-01_ADVERTISED_URL: http://ksqldb:8088
 
       CONTROL_CENTER_CONFLUENT_METRICS_TOPIC_REPLICATION: 1
       CONTROL_CENTER_REPLICATION_FACTOR: 1
       CONTROL_CENTER_COMMAND_TOPIC_REPLICATION: 1
+      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
       CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_REPLICATION: 1
       CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
       CONTROL_CENTER_INTERNAL_TOPICS_REPLICATION: 1
       CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
-      CONTROL_CENTER_STREAMS_NUM_STREAM_THREADS: 1
+      
+      CONTROL_CENTER_STREAMS_NUM_STREAM_THREADS: 16
+      CONTROL_CENTER_CONFLUENT_CONTROLCENTER_STREAMS_NUM_STREAM_THREADS: 16
       CONTROL_CENTER_STREAMS_CACHE_MAX_BYTES_BUFFERING: 1000000000
-      CONTROL_CENTER_CONFLUENT_CONTROLCENTER_STREAMS_NUM_STREAM_THREADS: 10
-      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
-
+      
       CONTROL_CENTER_JVM_PERFORMANCE_OPTS: -server -XX:MetaspaceSize=96m -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintFlagsFinal -XX:+UseBiasedLocking -XX:+UseG1GC -XX:G1HeapRegionSize=16 -XX:InitiatingHeapOccupancyPercent=35 -XX:MaxGCPauseMillis=20 -XX:MaxInlineLevel=15 -XX:MaxMetaspaceFreeRatio=80 -XX:MinMetaspaceFreeRatio=50 -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true
 
       # CONTROL_CENTER_CONFLUENT_CONTROLCENTER_MODE_ENABLE: 'management'

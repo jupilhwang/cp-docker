@@ -1,0 +1,21 @@
+
+{
+    "connector.class": "io.confluent.kafka.connect.datagen.DatagenConnector",
+    "kafka.topic": "orders",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false",
+    "max.interval": 1,
+    "iterations": "10000",
+    "tasks.max": "10",
+    "schema.filename" : "/data/schemas/orders.avro",
+    "schema.keyfield" : "orderid",
+
+    "trace.records.enable": "true",
+    "trace.records.topic": "preview-topic",
+    "trace.records.topic.replication.factor": "1",
+    "trace.records.topic.partitions": "1",
+    "datapreview.id": "1"
+}
+
+

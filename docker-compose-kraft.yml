@@ -587,7 +587,6 @@ services:
   #     - $PWD/kafka-rest-jaas.properties:/etc/kafka-rest/kafka-rest-jaas.properties
   #     - $PWD/kafka-rest-login.properties:/etc/kafka-rest/kafka-rest-login.properties
 
-
 networks:
   default:
     name: confluent
