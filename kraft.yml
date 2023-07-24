@@ -22,7 +22,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_LISTENERS: INTERNAL://kafka-01:19092,PLAINTEXT://kafka-01:9092,CONTROLLER://kafka-01:29092
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-01:19092,PLAINTEXT://kafka-01:9092
-
+      
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_DELETE_TOPIC_ENABLE: 'true'
 
@@ -92,7 +92,7 @@ services:
       #	metrics.include = (io.confluent.kafka.server/broker_load/broker_load_percent|io.confluent.kafka.server/broker_topic/bytes_in/rate/1_min|io.confluent.kafka.server/broker_topic/bytes_out/rate/1_min|io.confluent.kafka.server/broker_topic/messages_in/rate/1_min|io.confluent.kafka.server/broker_topic/replication_bytes_in/rate/1_min|io.confluent.kafka.server/broker_topic/replication_bytes_out/rate/1_min|io.confluent.kafka.server/broker_topic/total_fetch_requests/rate/1_min|io.confluent.kafka.server/broker_topic/total_follower_fetch_requests/rate/1_min|io.confluent.kafka.server/broker_topic/total_produce_requests/rate/1_min|io.confluent.kafka.server/log/size|io.confluent.kafka.server/log_flush/log_flush_rate_and_time_ms|io.confluent.kafka.server/log_flush/log_flush_rate_and_time_ms/rate/1_min|io.confluent.kafka.server/request/local_time_ms|io.confluent.kafka.server/request/request_queue_time_ms|io.confluent.kafka.server/request/requests/rate/1_min|io.confluent.kafka.server/request/total_time_ms|io.confluent.kafka.server/request_channel/request_queue_size|io.confluent.kafka.server/request_channel/response_queue_size|io.confluent.kafka.server/request_handler_pool/request_handler_avg_idle_percent/rate/1_min|io.confluent.kafka.server/server/linux_system_cpu_utilization|io.confluent.system/volume/disk_total_bytes)
 
 
-      KAFKA_LOG4J_LOGGERS: io.confluent.telemetry=DEBUG,org.apache.kafka.image.loader.MetadataLoader=ERROR
+      KAFKA_LOG4J_LOGGERS: org.apache.kafka.image.loader.MetadataLoader=ERROR
       KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
 
       KAFKA_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
@@ -123,10 +123,11 @@ services:
 
       # KAFKA_HEAP_OPTS: "-Xms2g -Xmx2g"
       # EXTRA_ARGS: -javaagent:/etc/confluent/jmx_prometheus_javaagent.jar=8070:/etc/confluent/kafka.yml
+      EXTRA_ARGS: -javaagent:/etc/confluent/otel-javaagent.jar
       # KAFKA_HEAP_OPTS: "-Xms8g -Xmx8g"
       # KAFKA_JMX_PORT: 9999
       # KAFKA_JMX_OPTS: -Djava.rmi.server.hostname=kafka-01 -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false  -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.rmi.port=9999
-      KAFKA_JVM_PERFORMANCE_OPTS: -server -XX:MetaspaceSize=96m -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintFlagsFinal -XX:+UseBiasedLocking -XX:+UseG1GC -XX:G1HeapRegionSize=16 -XX:InitiatingHeapOccupancyPercent=35 -XX:MaxGCPauseMillis=20 -XX:MaxInlineLevel=15 -XX:MaxMetaspaceFreeRatio=80 -XX:MinMetaspaceFreeRatio=50 -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true
+      KAFKA_JVM_PERFORMANCE_OPTS: -server -XX:MetaspaceSize=96m -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintFlagsFinal -XX:+UseBiasedLocking -XX:+UseG1GC -XX:G1HeapRegionSize=16 -XX:InitiatingHeapOccupancyPercent=35 -XX:MaxGCPauseMillis=20 -XX:MaxInlineLevel=15 -XX:MaxMetaspaceFreeRatio=80 -XX:MinMetaspaceFreeRatio=50 -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true -Dotel.resource.attributes=service.name=kafka-broker-01 -Dotel.traces.exporter=otlp -Dotel.exporter.otlp.endpoint=10.178.0.3:4317
     
     # volumes:
     #   - ./update_run.sh:/tmp/update_run.sh
@@ -135,6 +136,7 @@ services:
       - /bin/bash
       - -c
       - |
+        wget -O /etc/confluent/otel-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar
         wget -O /etc/confluent/jmx_prometheus_javaagent.jar https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.18.0/jmx_prometheus_javaagent-0.18.0.jar
         wget -O /etc/confluent/kafka.yml https://raw.githubusercontent.com/confluentinc/jmx-monitoring-stacks/7.3-post/shared-assets/jmx-exporter/kafka_broker.yml
         echo "Launching kafka Connect worker"
