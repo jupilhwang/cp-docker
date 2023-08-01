@@ -121,19 +121,13 @@ services:
       KAFKA_LOG_DIRS: '/etc/confluent/kraft-combined-logs'
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
 
-      OTEL_RESOURCE_ATTRIBUTES=service.name=kafka-broker-01
-      OTEL_TRACES_EXPORTER=otlp
-      OTEL_METRICS_EXPORTER=none
-      OTEL_LOG_EXPORTER=none
-      OTEL_EXPORTOR_OTLP_ENDPOINT=10.178.0.3:4317
-
       # KAFKA_HEAP_OPTS: "-Xms2g -Xmx2g"
       # EXTRA_ARGS: -javaagent:/etc/confluent/jmx_prometheus_javaagent.jar=8070:/etc/confluent/kafka.yml
-      EXTRA_ARGS: -javaagent:/etc/confluent/otel-javaagent.jar
+      # EXTRA_ARGS: -javaagent:/etc/confluent/otel-javaagent.jar
       # KAFKA_HEAP_OPTS: "-Xms8g -Xmx8g"
       # KAFKA_JMX_PORT: 9999
       # KAFKA_JMX_OPTS: -Djava.rmi.server.hostname=kafka-01 -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false  -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.rmi.port=9999
-      KAFKA_JVM_PERFORMANCE_OPTS: -server -XX:MetaspaceSize=96m -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintFlagsFinal -XX:+UseBiasedLocking -XX:+UseG1GC -XX:G1HeapRegionSize=16 -XX:InitiatingHeapOccupancyPercent=35 -XX:MaxGCPauseMillis=20 -XX:MaxInlineLevel=15 -XX:MaxMetaspaceFreeRatio=80 -XX:MinMetaspaceFreeRatio=50 -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true
+      KAFKA_JVM_PERFORMANCE_OPTS: -server -XX:MetaspaceSize=96m -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintFlagsFinal -XX:+UseBiasedLocking -XX:+UseG1GC -XX:G1HeapRegionSize=16 -XX:InitiatingHeapOccupancyPercent=35 -XX:MaxGCPauseMillis=20 -XX:MaxInlineLevel=15 -XX:MaxMetaspaceFreeRatio=80 -XX:MinMetaspaceFreeRatio=50 -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true -Dotel.instrumentation.kafka.enabled=true -Dotel.resource.attributes=service.name=kafka-broker-01 -Dotel.traces.exporter=otlp -Dotel.exporter.otlp.endpoint=http://10.178.0.3:4317 -Dotel.instrumentation.messaging.experimental.receive-telemetry.enabled=true
     
     # volumes:
     #   - ./update_run.sh:/tmp/update_run.sh
@@ -142,7 +136,7 @@ services:
       - /bin/bash
       - -c
       - |
-        wget -O /etc/confluent/otel-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar
+        # wget -O /etc/confluent/otel-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar
         wget -O /etc/confluent/jmx_prometheus_javaagent.jar https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.18.0/jmx_prometheus_javaagent-0.18.0.jar
         wget -O /etc/confluent/kafka.yml https://raw.githubusercontent.com/confluentinc/jmx-monitoring-stacks/7.3-post/shared-assets/jmx-exporter/kafka_broker.yml
         echo "Launching kafka Connect worker"
@@ -165,7 +159,7 @@ services:
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
   kafka-connect:
-    image: confluentinc/cp-kafka-connect:7.4.1
+    image: confluentinc/cp-server-connect:7.4.1
     hostname: kafka-connect
     container_name: kafka-connect
     restart: always
@@ -219,7 +213,7 @@ services:
       CONNECT_PRODUCER_ENABLE_IDEMPOTENCE: 'true'
       CONNECT_PRODUCER_COMPRESSION_TYPE: lz4
 
-      CONNECT_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter,io.confluent.telemetry.reporter.TelemetryReporter
+      # CONNECT_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter,io.confluent.telemetry.reporter.TelemetryReporter
       CONNECT_METRICS_SAMPLE_WINDOW_MS: 30000
       CONNECT_METRICS_NUM_SAMPLES: 2
 
@@ -311,8 +305,12 @@ services:
       - /bin/bash
       - -c
       - |
-        echo "Download bebezium rest extention"
-        wget -qO- https://repo1.maven.org/maven2/io/debezium/debezium-connect-rest-extension/2.3.0.Final/debezium-connect-rest-extension-2.3.0.Final.tar.gz | tar xzf -C /etc/kafka-connect/jars
+        # echo "Download bebezium rest extention"
+        # wget -qO- https://repo1.maven.org/maven2/io/debezium/debezium-connect-rest-extension/2.3.0.Final/debezium-connect-rest-extension-2.3.0.Final.tar.gz | tar xzf -C /etc/kafka-connect/jars
+
+        echo "Download Tracing Interceptor"
+        wget -O /etc/confluent/tracing-interceptor.jar https://github-registry-files.githubusercontent.com/671770660/47597800-2d0b-11ee-9f2e-ea9b1e9c3899?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIWNJYAX4CSVEH53A%2F20230728%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20230728T062947Z&X-Amz-Expires=300&X-Amz-Signature=09d0e16b5253ff9b5d0e33c18c4e5864d5707e65d738582bb30f287aeda04379&X-Amz-SignedHeaders=host&actor_id=0&key_id=0&repo_id=671770660&response-content-disposition=filename%3Dtracing-interceptor-0.0.1.jar&response-content-type=application%2Foctet-stream
+
         #
         echo "Download zipkin Interceptor"
         #
@@ -335,7 +333,7 @@ services:
         confluent-hub install --no-prompt confluentinc/connect-transforms:latest
         confluent-hub install --no-prompt jcustenborder/kafka-connect-transform-common:latest
         #
-        echo "{{ \"metric.reporters=io.confluent.telemetry.reporter.TelemetryReporter\" }}" >> /etc/confluent/docker/kafka-connect.properties.template
+        # echo "{{ \"metric.reporters=io.confluent.telemetry.reporter.TelemetryReporter\" }}" >> /etc/confluent/docker/kafka-connect.properties.template
         echo "Launching kafka Connect worker"
         /etc/confluent/docker/run &
         #
