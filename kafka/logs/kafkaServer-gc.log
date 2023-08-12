@@ -14491,3 +14491,16 @@
 [2023-08-12T07:50:24.390+0000][gc,metaspace  ] GC(1001) Metaspace: 119310K(125028K)->119310K(125028K) NonClass: 105432K(108748K)->105432K(108748K) Class: 13878K(16280K)->13878K(16280K)
 [2023-08-12T07:50:24.390+0000][gc            ] GC(1001) Pause Young (Normal) (GCLocker Initiated GC) 742M->371M(1024M) 14.028ms
 [2023-08-12T07:50:24.390+0000][gc,cpu        ] GC(1001) User=0.10s Sys=0.00s Real=0.01s
+[2023-08-12T07:51:54.471+0000][gc,start      ] GC(1002) Pause Young (Normal) (G1 Evacuation Pause)
+[2023-08-12T07:51:54.471+0000][gc,task       ] GC(1002) Using 8 workers of 8 for evacuation
+[2023-08-12T07:51:54.485+0000][gc,phases     ] GC(1002)   Pre Evacuate Collection Set: 0.0ms
+[2023-08-12T07:51:54.485+0000][gc,phases     ] GC(1002)   Evacuate Collection Set: 12.7ms
+[2023-08-12T07:51:54.485+0000][gc,phases     ] GC(1002)   Post Evacuate Collection Set: 0.7ms
+[2023-08-12T07:51:54.485+0000][gc,phases     ] GC(1002)   Other: 0.4ms
+[2023-08-12T07:51:54.485+0000][gc,heap       ] GC(1002) Eden regions: 398->0(421)
+[2023-08-12T07:51:54.485+0000][gc,heap       ] GC(1002) Survivor regions: 19->20(53)
+[2023-08-12T07:51:54.485+0000][gc,heap       ] GC(1002) Old regions: 204->204
+[2023-08-12T07:51:54.485+0000][gc,heap       ] GC(1002) Humongous regions: 149->149
+[2023-08-12T07:51:54.485+0000][gc,metaspace  ] GC(1002) Metaspace: 119315K(125028K)->119315K(125028K) NonClass: 105437K(108748K)->105437K(108748K) Class: 13878K(16280K)->13878K(16280K)
+[2023-08-12T07:51:54.485+0000][gc            ] GC(1002) Pause Young (Normal) (G1 Evacuation Pause) 769M->372M(1024M) 13.788ms
+[2023-08-12T07:51:54.485+0000][gc,cpu        ] GC(1002) User=0.10s Sys=0.00s Real=0.01s
