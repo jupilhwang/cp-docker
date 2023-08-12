@@ -2,7 +2,9 @@
 version: '3'
 services:
   kafka-01:
-    image: confluentinc/cp-server:7.4.1
+    build:
+      context: ./kafka
+      dockerfile: Dockerfile
     hostname: kafka-01
     container_name: kafka-01
     restart: always
@@ -91,7 +93,6 @@ services:
 
       #	metrics.include = (io.confluent.kafka.server/broker_load/broker_load_percent|io.confluent.kafka.server/broker_topic/bytes_in/rate/1_min|io.confluent.kafka.server/broker_topic/bytes_out/rate/1_min|io.confluent.kafka.server/broker_topic/messages_in/rate/1_min|io.confluent.kafka.server/broker_topic/replication_bytes_in/rate/1_min|io.confluent.kafka.server/broker_topic/replication_bytes_out/rate/1_min|io.confluent.kafka.server/broker_topic/total_fetch_requests/rate/1_min|io.confluent.kafka.server/broker_topic/total_follower_fetch_requests/rate/1_min|io.confluent.kafka.server/broker_topic/total_produce_requests/rate/1_min|io.confluent.kafka.server/log/size|io.confluent.kafka.server/log_flush/log_flush_rate_and_time_ms|io.confluent.kafka.server/log_flush/log_flush_rate_and_time_ms/rate/1_min|io.confluent.kafka.server/request/local_time_ms|io.confluent.kafka.server/request/request_queue_time_ms|io.confluent.kafka.server/request/requests/rate/1_min|io.confluent.kafka.server/request/total_time_ms|io.confluent.kafka.server/request_channel/request_queue_size|io.confluent.kafka.server/request_channel/response_queue_size|io.confluent.kafka.server/request_handler_pool/request_handler_avg_idle_percent/rate/1_min|io.confluent.kafka.server/server/linux_system_cpu_utilization|io.confluent.system/volume/disk_total_bytes)
 
-
       KAFKA_LOG4J_LOGGERS: org.apache.kafka.image.loader.MetadataLoader=ERROR
       KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
 
@@ -121,12 +122,12 @@ services:
       KAFKA_LOG_DIRS: '/etc/confluent/kraft-combined-logs'
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
 
-      OTEL_RESOURCE_ATTRIBUTES: service.name=kafka-broker,service.version=1.0.0
-      OTEL_EXPORTER_OTLP_COMPRESSION: gzip
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://172.31.62.53:4317
-      OTEL_EXPORTER_OTLP_HEADERS: "uptrace-dsn=http://172.31.62.53:4318/2"
-      OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: DELTA
-      OTEL_EXPORTER_OTLP_METRICS_DEFAULT_HISTOGRAM_AGGREGATION: BASE2_EXPONENTIAL_BUCKET_HISTOGRAM
+      # OTEL_RESOURCE_ATTRIBUTES: service.name=kafka-broker,service.version=1.0.0
+      # OTEL_EXPORTER_OTLP_COMPRESSION: gzip
+      # OTEL_EXPORTER_OTLP_ENDPOINT: http://172.31.62.53:4317
+      # OTEL_EXPORTER_OTLP_HEADERS: "uptrace-dsn=http://172.31.62.53:4318/2"
+      # OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: DELTA
+      # OTEL_EXPORTER_OTLP_METRICS_DEFAULT_HISTOGRAM_AGGREGATION: BASE2_EXPONENTIAL_BUCKET_HISTOGRAM
 
       # KAFKA_HEAP_OPTS: "-Xms2g -Xmx2g"
       # EXTRA_ARGS: -javaagent:/etc/confluent/jmx_prometheus_javaagent.jar=8070:/etc/confluent/kafka.yml
@@ -134,22 +135,23 @@ services:
       # KAFKA_HEAP_OPTS: "-Xms8g -Xmx8g"
       # KAFKA_JMX_PORT: 9999
       # KAFKA_JMX_OPTS: -Djava.rmi.server.hostname=kafka-01 -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false  -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.rmi.port=9999
-<<<<<<< HEAD:kraft.yml
-      KAFKA_JVM_PERFORMANCE_OPTS: -server -XX:MetaspaceSize=96m -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintFlagsFinal -XX:+UseBiasedLocking -XX:+UseG1GC -XX:G1HeapRegionSize=16 -XX:InitiatingHeapOccupancyPercent=35 -XX:MaxGCPauseMillis=20 -XX:MaxInlineLevel=15 -XX:MaxMetaspaceFreeRatio=80 -XX:MinMetaspaceFreeRatio=50 -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true
-=======
-      KAFKA_JVM_PERFORMANCE_OPTS: -server -XX:MetaspaceSize=96m -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintFlagsFinal -XX:+UseBiasedLocking -XX:+UseG1GC -XX:G1HeapRegionSize=16 -XX:InitiatingHeapOccupancyPercent=35 -XX:MaxGCPauseMillis=20 -XX:MaxInlineLevel=15 -XX:MaxMetaspaceFreeRatio=80 -XX:MinMetaspaceFreeRatio=50 -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true -Dotel.instrumentation.kafka.enabled=true -Dotel.resource.attributes=service.name=kafka-broker-01 -Dotel.traces.exporter=otlp -Dotel.exporter.otlp.endpoint=http://10.178.0.3:4317 -Dotel.instrumentation.messaging.experimental.receive-telemetry.enabled=true
->>>>>>> b9dcc2558b3af09064a726176c790e5775b69451:docker-compose.yml
+
+      KAFKA_JVM_PERFORMANCE_OPTS: -server -XX:MetaspaceSize=96m -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintFlagsFinal -XX:+UseBiasedLocking -XX:+UseG1GC -XX:G1HeapRegionSize=16 -XX:InitiatingHeapOccupancyPercent=35 -XX:MaxGCPauseMillis=20 -XX:MaxInlineLevel=15 -XX:MaxMetaspaceFreeRatio=80 -XX:MinMetaspaceFreeRatio=50 -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true # -Dotel.instrumentation.kafka.enabled=true -Dotel.resource.attributes=service.name=kafka-broker-01 -Dotel.traces.exporter=otlp -Dotel.exporter.otlp.endpoint=http://10.178.0.3:4317 -Dotel.instrumentation.messaging.experimental.receive-telemetry.enabled=true
     
     # volumes:
     #   - ./update_run.sh:/tmp/update_run.sh
     # command: "bash -c 'if [ ! -f /tmp/update_run.sh ]; then echo .ERROR: Did you forget the update_run.sh file that came with this docker-compose.yml file?. && exit 1 ; else /tmp/update_run.sh && /etc/confluent/docker/run ; fi'"
+    volumes:
+      - ${PWD}/kafka/logs:/var/log/kafka
     command: 
       - /bin/bash
       - -c
       - |
+        echo "Downloading jars"
         # wget -O /etc/confluent/otel-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar
         wget -O /etc/confluent/jmx_prometheus_javaagent.jar https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.18.0/jmx_prometheus_javaagent-0.18.0.jar
         wget -O /etc/confluent/kafka.yml https://raw.githubusercontent.com/confluentinc/jmx-monitoring-stacks/7.3-post/shared-assets/jmx-exporter/kafka_broker.yml
+        #
         echo "Launching kafka Connect worker"
         /etc/confluent/docker/run &
         #
