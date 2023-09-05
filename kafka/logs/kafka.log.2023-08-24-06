@@ -1,0 +1,4 @@
+[2023-08-24 06:57:04,621] INFO [ProducerStateManager partition=telemetry-0] Wrote producer snapshot at offset 22467602 with 0 producer ids in 0 ms. (kafka.log.ProducerStateManager)
+[2023-08-24 06:57:04,622] INFO [MergedLog partition=telemetry-0, dir=/etc/confluent/kraft-combined-logs] Rolled new log segment at offset 22467602 in 1 ms. (kafka.log.MergedLog)
+[2023-08-24 06:59:34,670] INFO [ProducerStateManager partition=_confluent-telemetry-metrics-0] Wrote producer snapshot at offset 475494 with 0 producer ids in 1 ms. (kafka.log.ProducerStateManager)
+[2023-08-24 06:59:34,670] INFO [MergedLog partition=_confluent-telemetry-metrics-0, dir=/etc/confluent/kraft-combined-logs] Rolled new log segment at offset 475494 in 2 ms. (kafka.log.MergedLog)

@@ -1,0 +1,2 @@
+[2023-08-31 18:05:25,726] INFO [MergedLog partition=__cluster_metadata-0, dir=/etc/confluent/kraft-combined-logs] Incrementing merged log start offset to 84730 due to snapshot generated (kafka.log.MergedLog)
+[2023-08-31 18:05:25,726] INFO [MetadataLog partition=__cluster_metadata-0, nodeId=1] Marking snapshot OffsetAndEpoch(offset=77531, epoch=2) for deletion (kafka.raft.KafkaMetadataLog)

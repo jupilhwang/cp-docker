@@ -1,0 +1,45 @@
+[2023-08-31 08:04:43,504] INFO [MergedLog partition=__transaction_state-1, dir=/etc/confluent/kraft-combined-logs] Rolled new log segment at offset 4 in 2 ms. (kafka.log.MergedLog)
+[2023-08-31 08:04:55,293] INFO Filthiest log __transaction_state-1 has last.shrinkage.ratio=1.000, dirty.ratio=1.000, expected.shrinkage.ratio=1.000 
+ (kafka.log.LogCleaner)
+[2023-08-31 08:04:55,293] INFO Filthiest log __transaction_state-1 has last.shrinkage.ratio=1.000, dirty.ratio=1.000, expected.shrinkage.ratio=1.000 
+ (kafka.log.LogCleaner)
+[2023-08-31 08:04:55,293] INFO Cleaner 0: Beginning cleaning of log __transaction_state-1. (kafka.log.LogCleaner)
+[2023-08-31 08:04:55,293] INFO Cleaner 0: Beginning cleaning of log __transaction_state-1. (kafka.log.LogCleaner)
+[2023-08-31 08:04:55,293] INFO Cleaner 0: Building offset map for __transaction_state-1... (kafka.log.LogCleaner)
+[2023-08-31 08:04:55,293] INFO Cleaner 0: Building offset map for __transaction_state-1... (kafka.log.LogCleaner)
+[2023-08-31 08:04:55,315] INFO Cleaner 0: Building offset map for log __transaction_state-1 for 1 segments in offset range [0, 4). (kafka.log.LogCleaner)
+[2023-08-31 08:04:55,315] INFO Cleaner 0: Building offset map for log __transaction_state-1 for 1 segments in offset range [0, 4). (kafka.log.LogCleaner)
+[2023-08-31 08:04:55,315] INFO Cleaner 0: Building offset map for segment 1/1: LocalLogSegmentReadAdapter(log segment: /etc/confluent/kraft-combined-logs/__transaction_state-1/00000000000000000000.log, startPosition: 0, endPosition: 574, baseOffset: 0, endOffset:3) (kafka.log.LogCleaner)
+[2023-08-31 08:04:55,315] INFO Cleaner 0: Building offset map for segment 1/1: LocalLogSegmentReadAdapter(log segment: /etc/confluent/kraft-combined-logs/__transaction_state-1/00000000000000000000.log, startPosition: 0, endPosition: 574, baseOffset: 0, endOffset:3) (kafka.log.LogCleaner)
+[2023-08-31 08:04:55,316] INFO Cleaner 0: Cleaning log __transaction_state-1 (cleaning prior to Thu Aug 24 07:23:33 GMT 2023, discarding tombstones prior to upper bound deletion horizon Thu Jan 01 00:00:00 GMT 1970)... (kafka.log.LogCleaner)
+[2023-08-31 08:04:55,316] INFO Cleaner 0: Cleaning log __transaction_state-1 (cleaning prior to Thu Aug 24 07:23:33 GMT 2023, discarding tombstones prior to upper bound deletion horizon Thu Jan 01 00:00:00 GMT 1970)... (kafka.log.LogCleaner)
+[2023-08-31 08:04:55,316] INFO Cleaner 0: Cleaning LogSegment(baseOffset=0, size=574, lastModifiedTime=1692861813035, largestRecordTimestamp=Some(1692861813039)) in log __transaction_state-1 into 0 with an upper bound deletion horizon 0 computed from the segment last modified time of 1692861813035,retaining deletes. (kafka.log.LogCleaner)
+[2023-08-31 08:04:55,316] INFO Cleaner 0: Cleaning LogSegment(baseOffset=0, size=574, lastModifiedTime=1692861813035, largestRecordTimestamp=Some(1692861813039)) in log __transaction_state-1 into 0 with an upper bound deletion horizon 0 computed from the segment last modified time of 1692861813035,retaining deletes. (kafka.log.LogCleaner)
+[2023-08-31 08:04:55,321] INFO Cleaner 0: Swapping in cleaned segment LogSegment(baseOffset=0, size=118, lastModifiedTime=1692861813035, largestRecordTimestamp=Some(1692861813039)) for segment(s) List(LogSegment(baseOffset=0, size=574, lastModifiedTime=1692861813035, largestRecordTimestamp=Some(1692861813039))) in log MergedLog(dir=/etc/confluent/kraft-combined-logs/__transaction_state-1, topic=__transaction_state, partition=1, highWatermark=5, lastStableOffset=5, localLogStartOffset=0, logStartOffset=0, logEndOffset=5, tierPartitionState=FileTierPartitionState(topicIdPartition=Q-5MPSJjSlWAoDwb3vgx8w:__transaction_state-1, tieringEnabled=false)) (kafka.log.LogCleaner)
+[2023-08-31 08:04:55,321] INFO Cleaner 0: Swapping in cleaned segment LogSegment(baseOffset=0, size=118, lastModifiedTime=1692861813035, largestRecordTimestamp=Some(1692861813039)) for segment(s) List(LogSegment(baseOffset=0, size=574, lastModifiedTime=1692861813035, largestRecordTimestamp=Some(1692861813039))) in log MergedLog(dir=/etc/confluent/kraft-combined-logs/__transaction_state-1, topic=__transaction_state, partition=1, highWatermark=5, lastStableOffset=5, localLogStartOffset=0, logStartOffset=0, logEndOffset=5, tierPartitionState=FileTierPartitionState(topicIdPartition=Q-5MPSJjSlWAoDwb3vgx8w:__transaction_state-1, tieringEnabled=false)) (kafka.log.LogCleaner)
+[2023-08-31 08:04:55,322] INFO [kafka-log-cleaner-thread-0]: 
+	Log cleaner thread 0 cleaned log __transaction_state-1 (dirty section = [0, 4])
+	0.0 MB of log processed in 0.0 seconds (0.0 MB/sec).
+	Average key size for records observed during this compaction run is 13.00 bytes	Indexed 0.0 MB in 0.0 seconds (0.0 Mb/sec, 75.9% of total time)
+	Buffer utilization: 0.0%
+	Cleaned 0.0 MB in 0.0 seconds (0.1 Mb/sec, 24.1% of total time)
+	Start size: 0.0 MB (4 messages)
+	End size: 0.0 MB (1 messages)
+	79.4% size reduction (75.0% fewer messages)
+	Offset Map is Full: false (kafka.log.LogCleaner)
+[2023-08-31 08:04:55,322] INFO [kafka-log-cleaner-thread-0]: 
+	Log cleaner thread 0 cleaned log __transaction_state-1 (dirty section = [0, 4])
+	0.0 MB of log processed in 0.0 seconds (0.0 MB/sec).
+	Average key size for records observed during this compaction run is 13.00 bytes	Indexed 0.0 MB in 0.0 seconds (0.0 Mb/sec, 75.9% of total time)
+	Buffer utilization: 0.0%
+	Cleaned 0.0 MB in 0.0 seconds (0.1 Mb/sec, 24.1% of total time)
+	Start size: 0.0 MB (4 messages)
+	End size: 0.0 MB (1 messages)
+	79.4% size reduction (75.0% fewer messages)
+	Offset Map is Full: false (kafka.log.LogCleaner)
+[2023-08-31 08:05:55,321] INFO [MergedLog partition=__transaction_state-1, dir=/etc/confluent/kraft-combined-logs] Deleting segment files LogSegment(baseOffset=0, size=574, lastModifiedTime=1692861813035, largestRecordTimestamp=Some(1692861813039)) (kafka.log.LocalLog$)
+[2023-08-31 08:05:55,321] INFO Deleted log /etc/confluent/kraft-combined-logs/__transaction_state-1/00000000000000000000.log.deleted. (kafka.log.LogSegment)
+[2023-08-31 08:05:55,321] INFO Deleted offset index /etc/confluent/kraft-combined-logs/__transaction_state-1/00000000000000000000.index.deleted. (kafka.log.LogSegment)
+[2023-08-31 08:05:55,321] INFO Deleted time index /etc/confluent/kraft-combined-logs/__transaction_state-1/00000000000000000000.timeindex.deleted. (kafka.log.LogSegment)
+[2023-08-31 08:23:25,680] INFO [MergedLog partition=__cluster_metadata-0, dir=/etc/confluent/kraft-combined-logs] Incrementing merged log start offset to 15072 due to snapshot generated (kafka.log.MergedLog)
+[2023-08-31 08:23:25,681] INFO [MetadataLog partition=__cluster_metadata-0, nodeId=1] Marking snapshot OffsetAndEpoch(offset=7873, epoch=1) for deletion (kafka.raft.KafkaMetadataLog)

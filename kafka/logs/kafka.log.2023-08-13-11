@@ -1,0 +1,2 @@
+[2023-08-13 11:03:57,230] INFO [ProducerStateManager partition=_confluent-controlcenter-7-4-1-1-MetricsAggregateStore-changelog-0] Wrote producer snapshot at offset 24195083 with 1 producer ids in 0 ms. (kafka.log.ProducerStateManager)
+[2023-08-13 11:03:57,231] INFO [MergedLog partition=_confluent-controlcenter-7-4-1-1-MetricsAggregateStore-changelog-0, dir=/etc/confluent/kraft-combined-logs] Rolled new log segment at offset 24195083 in 1 ms. (kafka.log.MergedLog)

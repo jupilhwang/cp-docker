@@ -1,0 +1,4 @@
+[2023-09-05 00:00:02,468] INFO [MergedLog partition=_confluent-controlcenter-7-4-1-1-MetricsAggregateStore-changelog-0, dir=/etc/confluent/kraft-combined-logs] Deleting segment files LogSegment(baseOffset=115524130, size=134212192, lastModifiedTime=1693740671635, largestRecordTimestamp=Some(1693740658029)) (kafka.log.LocalLog$)
+[2023-09-05 00:00:02,492] INFO Deleted log /etc/confluent/kraft-combined-logs/_confluent-controlcenter-7-4-1-1-MetricsAggregateStore-changelog-0/00000000000115524130.log.deleted. (kafka.log.LogSegment)
+[2023-09-05 00:00:02,492] INFO Deleted offset index /etc/confluent/kraft-combined-logs/_confluent-controlcenter-7-4-1-1-MetricsAggregateStore-changelog-0/00000000000115524130.index.deleted. (kafka.log.LogSegment)
+[2023-09-05 00:00:02,492] INFO Deleted time index /etc/confluent/kraft-combined-logs/_confluent-controlcenter-7-4-1-1-MetricsAggregateStore-changelog-0/00000000000115524130.timeindex.deleted. (kafka.log.LogSegment)

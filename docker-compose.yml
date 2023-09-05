@@ -309,11 +309,11 @@ services:
       # KAFKA_JMX_OPTS: "-Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
       KAFKA_JVM_PERFORMANCE_OPTS: -server -XX:MetaspaceSize=96m -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintFlagsFinal -XX:+UseBiasedLocking -XX:+UseG1GC -XX:G1HeapRegionSize=16 -XX:InitiatingHeapOccupancyPercent=35 -XX:MaxGCPauseMillis=20 -XX:MaxInlineLevel=15 -XX:MaxMetaspaceFreeRatio=80 -XX:MinMetaspaceFreeRatio=50 -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true
 
-      CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components,/data/connect-jars
+      CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components
 
     volumes:
       - $PWD/data/mysql-connector-java-8.0.27.jar:/usr/share/java/kafka/mysql-connector-java-8.0.27.jar
-      - $PWD/data:/data
+      # - $PWD/data:/data
     command:
       - /bin/bash
       - -c
@@ -446,6 +446,7 @@ services:
       # CONTROL_CENTER_CONFLUENT_CONTROLCENTER_MODE_ENABLE: 'management'
       CONFLUENT_CONTROLCENTER_MODE_ENABLE: 'management'
       CONFLUENT_CONTROLCENTER_UI_AUTOUPDATE_ENABLE: 'false'
+      CONFLUENT_CONTROLCENTER_UI_CONTROLLER_CHART_ENABLE: 'true'
 
     # command:
     #   - bash
