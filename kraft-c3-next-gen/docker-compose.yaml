@@ -213,6 +213,12 @@ services:
     volumes:
        - prometheus-data:/mnt/data/data0
   
+  kafkacat:
+    image: confluentinc/cp-kafkacat
+    container_name: kafkacat
+    depends_on:
+      - broker
+    entrypoint: sleep infinity
 
 volumes:
   prometheus-data:
