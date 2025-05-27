@@ -3,6 +3,7 @@ services:
     image: confluentinc/cp-server
     hostname: broker
     container_name: broker
+    restart: always
     ports:
       - "9092:9092"
       - "9101:9101"
@@ -71,7 +72,8 @@ services:
   schema-registry:
     image: confluentinc/cp-schema-registry
     hostname: schema-registry
-    container_name: schema-registry
+    container_name: sr
+    restart: always
     depends_on:
       - broker
     ports:
@@ -85,6 +87,7 @@ services:
     image: confluentinc/cp-server-connect
     hostname: connect
     container_name: connect
+    restart: always
     ports:
       - "8083:8083"
     environment:
@@ -125,10 +128,14 @@ services:
       - -c
       - |
         echo "Installing Connector"
-        confluent-hub install --no-prompt conflunetinc/kafka-connect-jdbc
-        confluent-hub install --no-prompt mongodb/kafka-connect-mongodb
-        confluent-hub install --no-prompt debezium/debezium-connector-postgresql
-        confluent-hub install --no-prompt debezium/debezium-connector-mysql
+        confluent-hub install --no-prompt conflunetinc/kafka-connect-jdbc:latest
+        confluent-hub install --no-prompt confluentinc/kafka-connect-s3-source:latest
+        confluent-hub install --no-prompt confluentinc/kafka-connect-s3-sink:latest
+        confluent-hub install --no-prompt confluentinc/kafka-connect-oracle-cdc:latest
+        confluent-hub install --no-prompt debezium/debezium-connector-postgresql:latest
+        confluent-hub install --no-prompt debezium/debezium-connector-mysql:latest
+        confluent-hub install --no-prompt mongodb/kafka-connect-mongodb:latest
+        confluent-hub install --no-prompt confluentinc/connect-transforms:latest
         #
         echo "Launching Kafka Connect worker"
         /etc/confluent/docker/run &
@@ -138,10 +145,13 @@ services:
   control-center:
     image: confluentinc/cp-enterprise-control-center-next-gen
     hostname: control-center
-    container_name: control-center
+    container_name: c3
+    restart: always
     depends_on:
       - broker
       - schema-registry
+      - prometheus
+      - alertmanager
     ports:
       - "9021:9021"
     environment:
@@ -173,7 +183,6 @@ services:
     hostname: prometheus
     container_name: prometheus
     restart: always
-    #network_mode: "host"
     command:
       - '--config.file=/mnt/data/data0/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -196,7 +205,6 @@ services:
     hostname: alertmanager
     container_name: alertmanager
     restart: always
-    #network_mode: "host"
     command:
       - '--config.file=/mnt/data/data0/alertmanager.yml'
       - '--storage.path=/alertmanager'
