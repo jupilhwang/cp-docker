@@ -1,0 +1,30 @@
+{
+    "connector.class": "io.confluent.connect.replicator.ReplicatorSourceConnector",
+    "tasks.max": "2",
+
+    "key.converter": "io.confluent.connect.replicator.util.ByteArrayConverter",
+    "value.converter": "io.confluent.connect.replicator.util.ByteArrayConverter",
+    "header.converter": "io.confluent.connect.replicator.util.ByteArrayConverter",
+
+    "src.consumer.group.id": "replicator-group",
+    "dest.producer.override.client.rack": "apaz-1",
+    "src.consumer.client.rack": "apaz-1",
+    "src.consumer.override.client.rack": "apaz-1",
+
+    "src.kafka.bootstrap.servers": "pkc-e82om.ap-northeast-2.aws.confluent.cloud:9092",
+    "src.kafka.security.protocol": "SASL_SSL",
+    "src.kafka.sasl.mechanism": "PLAIN",
+    "src.kafka.sasl.jaas.config": "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"C2OT6IWP6BF4GHOY\" password=\"63e4hgDorn6sKED/FBvr2dEd6y46sxR9LPrYaRVkVhfyrcC4+nXVWjD+j/jHqvoV\";",
+
+    "dest.kafka.bootstrap.servers": "broker:29092",
+    "dest.topic.replication.factor": "1",
+
+    "topic.whitelist": "sample_data_orders",
+    "topic.config.sync": "true",
+
+    "src.schema.registry.url": "https://psrc-1oqld6g.ap-northeast-2.aws.confluent.cloud",
+    "src.schema.registry.basic.auth.credentials.source": "USER_INFO",
+    "src.schema.registry.basic.auth.user.info": "2TWCOUR7K2DTPLNL:eel77B7kNH0V3M+0smRm9BIL8+FdOAIYhHqqhh8i60pWx9z9f/lad9Yq3oKS7KN0",
+
+    "dest.schema.registry.url": "http://schema-registry:8081"
+  }
