@@ -6,6 +6,7 @@ services:
     ports:
       - "9092:9092"
       - "9101:9101"
+      - "8090:8090"
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
@@ -49,6 +50,7 @@ services:
       KAFKA_CONFLUENT_CONSUMER_LAG_EMITTER_ENALBED: true
 
       KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_METADATA_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
@@ -57,6 +59,14 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
 
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+
+      #Self Balancing
+      KAFKA_CONFLUENT_BALANCER_ENABLE: 'true'
+      KAFKA_CONFLUENT_BALANCER_HEAL_UNEVEN_LOAD_TRIGGER: ANY_UNEVEN_LOAD
+
+      # Schema Registry
+      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      KAFKA_SCHEMA_REGISTRY_URL: http://schema-registry:8081
 
   schema-registry:
     image: confluentinc/cp-schema-registry
@@ -91,20 +101,34 @@ services:
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
 
       CONNECT_KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
-      CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "true"
       CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
 
       CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
-      CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "true"
       CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
 
       CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
+      CONNECT_LOG4J_LOGGERS: org.apache.kafka.connect.runtime.rest=ERROR,org.reflections=ERROR
+      CONNECT_LOG4J_APPENDER_STDOUT_LAYOUT_CONVERSIONPATTERN: "[%d] %p %X{connector.context}%m (%c:%L)%n"
+
+      CONNECT_TOPIC_CREATION_ENABLE: 'true'
+      CONNECT_RETRY_BACKOFF_MS: 500
+      CONNECT_REQUEST_TIMEOUT_MS: 20000
+      CONNECT_PRODUCER_REQUEST_TIMEOUT_MS: 20000
+      CONNECT_PRODUCER_RETRY_BACKOFF_MS: 500
+      CONNECT_CONSUMER_REQUEST_TIMEOUT_MS: 20000
+      CONNECT_CONSUMER_RETRY_BACKOFF_MS: 500
+      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 5000
+      CONNECT_PRODUCER_COMPRESSION_TYPE: zstd 
+      CONNECT_PRODUCER_ENABLE_IDEMPOTENCE: true
     command:
       - bash
       - -c
       - |
         echo "Installing Connector"
-        confluent-hub install --no-prompt mongodb/kafka-connect-jdbc
+        confluent-hub install --no-prompt conflunetinc/kafka-connect-jdbc
+        confluent-hub install --no-prompt mongodb/kafka-connect-mongodb
+        confluent-hub install --no-prompt debezium/debezium-connector-postgresql
+        confluent-hub install --no-prompt debezium/debezium-connector-mysql
         #
         echo "Launching Kafka Connect worker"
         /etc/confluent/docker/run &
@@ -125,7 +149,9 @@ services:
       CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
       CONTROL_CENTER_REPLICATION_FACTOR: 1
       CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_REPLICATION: 1
       CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_REPLICATION: 1
       CONFLUENT_METRICS_TOPIC_REPLICATION: 1
       PORT: 9021
 
